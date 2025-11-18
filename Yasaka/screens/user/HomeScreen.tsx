@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 70, 
     color: '#090909ff', 
 
-    //efek latah belakang yasaka blur
+    //efek latar belakang yasaka transparan
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 15,
     paddingVertical: 5,
