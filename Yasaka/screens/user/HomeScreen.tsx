@@ -23,7 +23,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     return (
         
         <ImageBackground 
-            source={require('../../assets/images/BACKROUND.jpeg')} // ⚠️ Pastikan path ini benar!
+            source={require('../../assets/images/BACKROUND.jpeg')}
             style={styles.background}
             resizeMode="cover"
         >
@@ -80,10 +80,14 @@ const styles = StyleSheet.create({
   },
   yasakaText: {
     fontSize: 70, 
-    color: '#E0E0E0', 
+    color: '#090909ff', 
+
+    //efek latah belakang yasaka blur
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     paddingHorizontal: 15,
     paddingVertical: 5,
+    paddingTop: 0,
+    paddingBottom: 30,
     letterSpacing: 2,
     textShadowColor: 'black', 
     textShadowOffset: { width: 1, height: 1 },
@@ -91,8 +95,8 @@ const styles = StyleSheet.create({
   },
   friedChickenText: {
     fontSize: 30,
-    color: '#E0E0E0',
-    marginTop: -15, 
+    color: '#080808ff',
+    marginTop: -36, 
     letterSpacing: 1.5,
     fontStyle: 'italic',
   },
