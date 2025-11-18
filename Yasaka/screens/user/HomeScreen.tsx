@@ -1,19 +1,12 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ImageBackground, 
-  TouchableOpacity 
-} from 'react-native';
-
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
 type RootStackParamList = {
     Menu: undefined;
-    
+
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Menu'>;
@@ -34,7 +27,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
             style={styles.background}
             resizeMode="cover"
         >
-            
+
             <View style={styles.overlay} /> 
 
             {/* Konten Utama */}
@@ -47,13 +40,12 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
                 </View>
 
                 <View style={{ flex: 1 }} /> 
-
+                
                 {/* Tombol PESAN SEKARANG */}
                 <TouchableOpacity 
                     style={styles.button}
                     onPress={handlePress}
-                    activeOpacity={0.8}
-                >
+                    activeOpacity={0.8}>
                     <Text style={styles.buttonText}>PESAN SEKARANG</Text>
                     <AntDesign name="arrow-right" size={24} color="black" style={styles.buttonIcon} />
                 </TouchableOpacity>
