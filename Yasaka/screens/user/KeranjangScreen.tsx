@@ -4,7 +4,7 @@ import { View, Text } from 'react-native';
 export default function KeranjangScreen() {
   return (
     <View>
-      <Text>Menu Screen</Text>
+      <Text>Keranjang Screen</Text>
     </View>
   );
 }
