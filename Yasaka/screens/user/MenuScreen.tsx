@@ -1,7 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Modal, FlatList, Dimensions, ImageBackground, StatusBar} from'react-native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons'; 
+import React from 'react';
+import { View, Text } from 'react-native';
 
 export default function MenuScreen() {
   return (

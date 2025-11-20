@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { TEXT_BG_TRANSPARENT, TEXT_DARK } from '../../constants/Colors';
 
 
 type RootStackParamList = {
@@ -80,10 +81,10 @@ const styles = StyleSheet.create({
   },
   yasakaText: {
     fontSize: 70, 
-    color: '#090909ff', 
+    color: TEXT_DARK, 
 
     //efek latar belakang yasaka transparan
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: TEXT_BG_TRANSPARENT,
     paddingHorizontal: 15,
     paddingVertical: 5,
     paddingTop: 0,
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
   },
   friedChickenText: {
     fontSize: 30,
-    color: '#080808ff',
+    color: TEXT_DARK,
     marginTop: -36, 
     letterSpacing: 1.5,
     fontStyle: 'italic',
