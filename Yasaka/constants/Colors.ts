@@ -6,7 +6,7 @@ export const TEXT_DARK = '#090909';           // Hitam (Default Teks)
 export const TEXT_LIGHT = '#FFFFFF';          // Putih (Teks Header, Tombol)
 export const TEXT_GRAY = '#555555';           // Abu-abu (Deskripsi Menu)
 export const TEXT_PRICE = PRIMARY;         
-export const BUTTON_TEXT_HOMESCREEN = TEXT_DARK; // Warna teks tombol Home
+
 
 // --- Warna Latar Belakang & Transparansi ---
 export const BACKGROUND_OVERLAY = 'rgba(0, 0, 0, 0.2)'; // Overlay Layar
@@ -17,3 +17,5 @@ export const BORDER_LIGHT = 'rgba(255, 255, 255, 0.5)'; // Border Tab
 export const BORDER_DARK = '#CCCCCC';         // Border Kontrol Bar
 export const TEXT_BG_TRANSPARENT = 'rgba(255, 255, 255, 0.4)'; // Latar belakang teks Home
 export const BUTTON_HOMESCREEN = '#E0E0E0';   // Warna Tombol PESAN SEKARANG Home
+export const TEXT_INPUT_BG = '#E5E5E5';    // Latar belakang input teks
+
