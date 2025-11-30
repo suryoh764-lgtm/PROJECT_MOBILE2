@@ -6,14 +6,18 @@ import * as Fonts from '../constants/Fonts';
 
 interface HeaderProps {
     title: string;
+    isTransparent?: boolean; 
 }
 
-const Header: React.FC<HeaderProps> = ({ title }) => {
+const Header: React.FC<HeaderProps> = ({ title, isTransparent = false }) => {
     return (
-        <View style={styles.header}>
+        <View style={[
+            styles.header, 
+            isTransparent ? styles.headerTransparent : styles.headerDefault
+        ]}>
             <View style={styles.iconButton}> 
                 <Ionicons 
-                    name={Platform.OS === 'ios' ? 'menu' : 'menu'} 
+                    name={'menu'} 
                     size={30} 
                     color={Colors.TEXT_DARK} 
                 />
@@ -29,10 +33,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: Platform.OS === 'ios' ? 50 : 30, 
         paddingHorizontal: 15,
-        backgroundColor: Colors.PRIMARY, 
+    },
+    headerDefault: {
+        paddingTop: Platform.OS === 'ios' ? 50 : 30, 
         height: Platform.OS === 'ios' ? 90 : 70, 
+        backgroundColor: Colors.PRIMARY, 
+    },
+    headerTransparent: {
+        paddingTop: 10, 
+        height: 70, 
+        backgroundColor: 'transparent', 
     },
     title: {
         fontSize: Fonts.SIZE_HEADER,
