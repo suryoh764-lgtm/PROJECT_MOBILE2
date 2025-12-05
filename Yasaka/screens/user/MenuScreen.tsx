@@ -19,6 +19,7 @@ const tableNumbers = Array.from({ length: 20 }, (_, i) => ({
 const MenuScreen = () => {
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
+    const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
     return (
         <View style={styles.container}>
@@ -80,9 +81,18 @@ const MenuScreen = () => {
                             <MenuCard
                                 key={item.id}
                                 item={item}
-                                onPress={() => {
-                                    // Handle add to cart
-                                    console.log('Add to cart:', item.name);
+                                quantity={quantities[item.id] || 0}
+                                onAdd={() => {
+                                    setQuantities(prev => ({
+                                        ...prev,
+                                        [item.id]: (prev[item.id] || 0) + 1
+                                    }));
+                                }}
+                                onSubtract={() => {
+                                    setQuantities(prev => ({
+                                        ...prev,
+                                        [item.id]: Math.max(0, (prev[item.id] || 0) - 1)
+                                    }));
                                 }}
                             />
                         ))
