@@ -4,6 +4,8 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import Header from '../../components/Header';
+import MenuCard from '../../components/MenuCard';
+import { menuItems } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 
@@ -16,6 +18,7 @@ const tableNumbers = Array.from({ length: 20 }, (_, i) => ({
 
 const MenuScreen = () => {
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
+    const [selectedCategory, setSelectedCategory] = useState('PAKET');
 
     return (
         <View style={styles.container}>
@@ -53,11 +56,38 @@ const MenuScreen = () => {
                 {/* CATEGORY BUTTONS */}
                 <View style={styles.categoryContainer}>
                     {categories.map((cat, index) => (
-                        <TouchableOpacity key={index} style={styles.categoryButton}>
-                            <Text style={styles.categoryText}>{cat}</Text>
+                        <TouchableOpacity
+                            key={index}
+                            style={[
+                                styles.categoryButton,
+                                selectedCategory === cat && styles.categoryButtonSelected
+                            ]}
+                            onPress={() => setSelectedCategory(cat)}
+                        >
+                            <Text style={[
+                                styles.categoryText,
+                                selectedCategory === cat && styles.categoryTextSelected
+                            ]}>{cat}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
+
+                {/* MENU ITEMS */}
+                <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
+                    {menuItems
+                        .filter(item => item.category === selectedCategory)
+                        .map(item => (
+                            <MenuCard
+                                key={item.id}
+                                item={item}
+                                onPress={() => {
+                                    // Handle add to cart
+                                    console.log('Add to cart:', item.name);
+                                }}
+                            />
+                        ))
+                    }
+                </ScrollView>
 
             </ImageBackground>
         </View>
@@ -92,6 +122,20 @@ const styles = StyleSheet.create({
         color: Colors.TEXT_DARK,
         fontSize: Fonts.SIZE_CATEGORY,
         fontWeight: Fonts.WEIGHT_BOLD,
+    },
+
+    categoryButtonSelected: {
+        backgroundColor: Colors.TEXT_DARK,
+    },
+
+    categoryTextSelected: {
+        color: Colors.PRIMARY,
+    },
+
+    /* MENU ITEMS */
+    menuContainer: {
+        flex: 1,
+        marginTop: 20,
     },
 
     /* TABLE SELECTION */
