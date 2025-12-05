@@ -135,11 +135,11 @@ const styles = StyleSheet.create({
     },
 
     categoryButtonSelected: {
-        backgroundColor: Colors.TEXT_DARK,
+        backgroundColor: Colors.BUTTON_HOMESCREEN,
     },
 
     categoryTextSelected: {
-        color: Colors.PRIMARY,
+        color: Colors.TEXT_DARK,
     },
 
     /* MENU ITEMS */
