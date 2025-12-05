@@ -8,22 +8,32 @@ import { formatCurrency } from '../utils/formatCurrency';
 
 interface MenuCardProps {
     item: MenuItem;
-    onPress: () => void;
+    quantity: number;
+    onAdd: () => void;
+    onSubtract: () => void;
 }
 
-const MenuCard: React.FC<MenuCardProps> = ({ item, onPress }) => {
+const MenuCard: React.FC<MenuCardProps> = ({ item, quantity, onAdd, onSubtract }) => {
     return (
-        <TouchableOpacity style={styles.card} onPress={onPress}>
+        <View style={styles.card}>
             <Image source={item.image} style={styles.image} />
             <View style={styles.details}>
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.description}>{item.description}</Text>
-                <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+                <View style={styles.bottomSection}>
+                    <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+                    <View style={styles.quantityContainer}>
+                        <TouchableOpacity onPress={onSubtract}>
+                            <Ionicons name="remove-circle" size={24} color="black" />
+                        </TouchableOpacity>
+                        <Text style={styles.quantity}>{quantity}</Text>
+                        <TouchableOpacity onPress={onAdd}>
+                            <Ionicons name="add-circle" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </View>
-            <TouchableOpacity style={styles.addButton} onPress={onPress}>
-                <Ionicons name="add-circle" size={24} color="black" />
-            </TouchableOpacity>
-        </TouchableOpacity>
+        </View>
     );
 };
 
@@ -61,13 +71,30 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         textAlign: 'justify',
     },
+    rightSection: {
+        alignItems: 'center',
+    },
     price: {
         fontSize: Fonts.SIZE_MENU_ITEM_PRICE,
         fontWeight: Fonts.WEIGHT_BOLD,
         color: 'black',
     },
-    addButton: {
-        padding: 5,
+    quantityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 5,
+    },
+    quantity: {
+        fontSize: Fonts.SIZE_QUANTITY,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        color: 'black',
+        marginHorizontal: 10,
+    },
+    bottomSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 5,
     },
 });
 
