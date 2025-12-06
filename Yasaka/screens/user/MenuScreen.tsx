@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
@@ -17,14 +18,20 @@ const tableNumbers = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const MenuScreen = () => {
+    const navigation = useNavigation();
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
     const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
+    const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+
+    const handleOrderNow = () => {
+        navigation.navigate('Keranjang' as never);
+    };
+
     return (
         <View style={styles.container}>
 
-            {/* Background + Blur */}
             <ImageBackground
                 source={require('../../assets/images/cover.jpg')}
                 style={styles.background}
@@ -36,10 +43,8 @@ const MenuScreen = () => {
                     style={StyleSheet.absoluteFill}
                 />
 
-                {/* HEADER */}
-                <Header title="MENU" />
+                <Header title="MENU" onMenuPress={() => (navigation as any).openDrawer()} />
 
-                {/* TABLE NUMBER SELECTION */}
                 <View style={styles.tableSelectionContainer}>
                     <Text style={styles.tableLabel}>PILIH NO MEJA :</Text>
                     <View style={styles.dropdownContainer}>
@@ -54,7 +59,6 @@ const MenuScreen = () => {
                     </View>
                 </View>
 
-                {/* CATEGORY BUTTONS */}
                 <View style={styles.categoryContainer}>
                     {categories.map((cat, index) => (
                         <TouchableOpacity
@@ -73,7 +77,6 @@ const MenuScreen = () => {
                     ))}
                 </View>
 
-                {/* MENU ITEMS */}
                 <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
                     {menuItems
                         .filter(item => item.category === selectedCategory)
@@ -99,6 +102,20 @@ const MenuScreen = () => {
                     }
                 </ScrollView>
 
+                <View style={styles.bottomContainer}>
+                    <TouchableOpacity style={styles.orderButton} onPress={handleOrderNow}>
+                        <View style={styles.cartIconContainer}>
+                            <Ionicons name="cart" size={24} color="black" />
+                            {totalItems > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{totalItems}</Text>
+                                </View>
+                            )}
+                        </View>
+                        <Text style={styles.orderButtonText}>PESAN SEKARANG</Text>
+                    </TouchableOpacity>
+                </View>
+
             </ImageBackground>
         </View>
     );
@@ -113,7 +130,6 @@ const styles = StyleSheet.create({
         flex: 1
     },
 
-    /* CATEGORY SECTION */
     categoryContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -142,13 +158,62 @@ const styles = StyleSheet.create({
         color: Colors.TEXT_DARK,
     },
 
-    /* MENU ITEMS */
     menuContainer: {
         flex: 1,
         marginTop: 20,
+        marginBottom: 80,
     },
 
-    /* TABLE SELECTION */
+    bottomContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+    },
+    orderButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.PRIMARY,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    cartIconContainer: {
+        position: 'relative',
+        marginRight: 15,
+    },
+    badge: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: Colors.TEXT_LIGHT,
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+    },
+    badgeText: {
+        color: Colors.TEXT_DARK,
+        fontSize: 12,
+        fontWeight: Fonts.WEIGHT_BOLD,
+    },
+    orderButtonText: {
+        color: Colors.TEXT_DARK,
+        fontSize: Fonts.SIZE_BUTTON,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        textTransform: 'uppercase',
+    },
+
     tableSelectionContainer: {
         flexDirection: 'row',
         alignItems: 'center',
