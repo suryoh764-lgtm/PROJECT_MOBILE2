@@ -9,7 +9,7 @@ import * as Fonts from '../../constants/Fonts';
 export default function KeranjangScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { selectedTable } = route.params as { selectedTable: string };
+  const { selectedTable } = (route.params as { selectedTable?: string }) || {};
   const [notes, setNotes] = useState('');
 
   return (
@@ -30,7 +30,19 @@ export default function KeranjangScreen() {
         <View style={styles.infoContainer}>
           <View style={styles.tableInfo}>
             <Text style={styles.label}>No Meja:</Text>
-            <Text style={styles.value}>{selectedTable}</Text>
+            <Text style={styles.value}>{selectedTable || 'Belum dipilih'}</Text>
+          </View>
+          <View style={styles.notesContainer}>
+            <Text style={styles.label}>Catatan Pesanan:</Text>
+            <TextInput
+              style={styles.notesInput}
+              placeholder="Tulis catatan untuk pesanan Anda..."
+              placeholderTextColor={Colors.TEXT_LIGHT}
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={3}
+            />
           </View>
         </View>
 
@@ -63,21 +75,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: Fonts.SIZE_CATEGORY,
+    fontSize: Fonts.SIZE_HEADER,
     fontWeight: Fonts.WEIGHT_BOLD,
     color: Colors.TEXT_LIGHT,
     marginRight: 10,
   },
   value: {
-    fontSize: Fonts.SIZE_CATEGORY,
+    fontSize: Fonts.SIZE_HEADER,
     color: Colors.TEXT_LIGHT,
+    fontWeight: Fonts.WEIGHT_BOLD,
   },
   notesInput: {
     borderWidth: 1,
     borderColor: Colors.TEXT_LIGHT,
     borderRadius: 8,
     padding: 10,
-    fontSize: Fonts.SIZE_CATEGORY,
+    fontSize: Fonts.SIZE_MENU_ITEM_NAME,
     color: Colors.TEXT_LIGHT,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     textAlignVertical: 'top',
