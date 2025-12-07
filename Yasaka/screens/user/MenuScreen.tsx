@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import RNPickerSelect from 'react-native-picker-select';
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
 import { menuItems } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
+import { RootStackParamList } from '../../navigation/UserStack';
 
 const categories = ["PAKET", "AYAM", "MINUMAN", "KENTANG"];
 
@@ -18,15 +21,38 @@ const tableNumbers = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const MenuScreen = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
     const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
+    useEffect(() => {
+        const loadSelectedTable = async () => {
+            try {
+                const savedTable = await AsyncStorage.getItem('selectedTable');
+                if (savedTable) {
+                    setSelectedTableNumber(savedTable);
+                }
+            } catch (error) {
+                console.error('Error loading selected table:', error);
+            }
+        };
+        loadSelectedTable();
+    }, []);
+
+    const handleTableChange = async (value: string) => {
+        setSelectedTableNumber(value);
+        try {
+            await AsyncStorage.setItem('selectedTable', value);
+        } catch (error) {
+            console.error('Error saving selected table:', error);
+        }
+    };
+
     const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
 
     const handleOrderNow = () => {
-        navigation.navigate('Keranjang' as never);
+        navigation.navigate('Keranjang', { selectedTable: selectedTableNumber });
     };
 
     return (
@@ -49,7 +75,7 @@ const MenuScreen = () => {
                     <Text style={styles.tableLabel}>PILIH NO MEJA :</Text>
                     <View style={styles.dropdownContainer}>
                         <RNPickerSelect
-                            onValueChange={(value) => setSelectedTableNumber(value)}
+                            onValueChange={handleTableChange}
                             items={tableNumbers}
                             value={selectedTableNumber}
                             style={pickerSelectStyles}
