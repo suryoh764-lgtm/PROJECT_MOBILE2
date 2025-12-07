@@ -1,12 +1,16 @@
-import React from 'react';
-import { View, Text, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ImageBackground, TextInput } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Header from '../../components/Header';
 import * as Colors from '../../constants/Colors';
+import * as Fonts from '../../constants/Fonts';
 
 export default function KeranjangScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { selectedTable } = route.params as { selectedTable: string };
+  const [notes, setNotes] = useState('');
 
   return (
     <View style={styles.container}>
@@ -23,6 +27,13 @@ export default function KeranjangScreen() {
 
         <Header title="KERANJANG" onMenuPress={() => (navigation as any).openDrawer()} onBackPress={() => navigation.goBack()} />
 
+        <View style={styles.infoContainer}>
+          <View style={styles.tableInfo}>
+            <Text style={styles.label}>No Meja:</Text>
+            <Text style={styles.value}>{selectedTable}</Text>
+          </View>
+        </View>
+
         <View style={styles.content}>
           <Text style={styles.text}>Keranjang Screen</Text>
         </View>
@@ -38,6 +49,38 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
+  },
+  infoContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  tableInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  notesContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: Fonts.SIZE_CATEGORY,
+    fontWeight: Fonts.WEIGHT_BOLD,
+    color: Colors.TEXT_LIGHT,
+    marginRight: 10,
+  },
+  value: {
+    fontSize: Fonts.SIZE_CATEGORY,
+    color: Colors.TEXT_LIGHT,
+  },
+  notesInput: {
+    borderWidth: 1,
+    borderColor: Colors.TEXT_LIGHT,
+    borderRadius: 8,
+    padding: 10,
+    fontSize: Fonts.SIZE_CATEGORY,
+    color: Colors.TEXT_LIGHT,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    textAlignVertical: 'top',
   },
   content: {
     flex: 1,
