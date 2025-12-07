@@ -8,9 +8,10 @@ interface HeaderProps {
     title: string;
     isTransparent?: boolean;
     onMenuPress?: () => void;
+    onBackPress?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, isTransparent = false, onMenuPress }) => {
+const Header: React.FC<HeaderProps> = ({ title, isTransparent = false, onMenuPress, onBackPress }) => {
     return (
         <View style={[
             styles.header,
@@ -24,7 +25,16 @@ const Header: React.FC<HeaderProps> = ({ title, isTransparent = false, onMenuPre
                 />
             </TouchableOpacity>
             <Text style={styles.title}>{title}</Text>
-            <View style={styles.iconButtonPlaceholder} />
+            {onBackPress && (
+                <TouchableOpacity style={styles.iconButton} onPress={onBackPress}>
+                    <Ionicons
+                        name={'arrow-back'}
+                        size={30}
+                        color={Colors.TEXT_DARK}
+                    />
+                </TouchableOpacity>
+            )}
+            {!onBackPress && <View style={styles.iconButtonPlaceholder} />}
         </View>
     );
 };
