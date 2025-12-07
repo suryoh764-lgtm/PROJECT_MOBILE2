@@ -30,20 +30,29 @@ const DrawerContent = ({ navigation }: any) => {
           <Ionicons name="close" size={30} color={Colors.TEXT_DARK} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.menuItem}
-        onPress={() => navigation.navigate('UserStack', { screen: 'Home' })}
-      >
-        <Ionicons name="home" size={24} color={Colors.TEXT_DARK} />
-        <Text style={styles.menuText}>HOME</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.menuItem, { marginTop: 30 }]}
-        onPress={() => navigation.navigate('UserStack', { screen: 'Keranjang' })}
-      >
-        <Ionicons name="cart" size={24} color={Colors.TEXT_DARK} />
-        <Text style={styles.menuText}>KERANJANG</Text>
-      </TouchableOpacity>
+      <View style={styles.menuContainer}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserStack', { screen: 'Home' })}
+        >
+          <Ionicons name="home" size={24} color={Colors.TEXT_DARK} />
+          <Text style={styles.menuText}>HOME</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserStack', { screen: 'Menu' })}
+        >
+          <Ionicons name="book" size={24} color={Colors.TEXT_DARK} />
+          <Text style={styles.menuText}>MENU</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserStack', { screen: 'Keranjang' })}
+        >
+          <Ionicons name="cart" size={24} color={Colors.TEXT_DARK} />
+          <Text style={styles.menuText}>KERANJANG</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -52,7 +61,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.PRIMARY,
-    paddingTop: 60,
+    paddingTop: 40,
     paddingHorizontal: 20,
   },
   header: {
@@ -62,6 +71,9 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 10,
+  },
+  menuContainer: {
+    flex: 1,
   },
   menuItem: {
     backgroundColor: Colors.BUTTON_HOMESCREEN,
