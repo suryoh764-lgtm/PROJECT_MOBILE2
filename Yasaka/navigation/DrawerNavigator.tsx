@@ -1,0 +1,84 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Ionicons } from '@expo/vector-icons';
+import UserStack from './UserStack';
+import * as Colors from '../constants/Colors';
+import * as Fonts from '../constants/Fonts';
+
+const Drawer = createDrawerNavigator();
+
+const DrawerNavigator = () => {
+  return (
+    <Drawer.Navigator
+      screenOptions={{ headerShown: false }}
+      drawerContent={(props) => <DrawerContent {...props} />}
+    >
+      <Drawer.Screen name="UserStack" component={UserStack} />
+    </Drawer.Navigator>
+  );
+};
+
+const DrawerContent = ({ navigation }: any) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => navigation.closeDrawer()}
+        >
+          <Ionicons name="close" size={30} color={Colors.TEXT_DARK} />
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => navigation.navigate('UserStack', { screen: 'Home' })}
+      >
+        <Ionicons name="home" size={24} color={Colors.TEXT_DARK} />
+        <Text style={styles.menuText}>HOME</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.menuItem, { marginTop: 30 }]}
+        onPress={() => navigation.navigate('UserStack', { screen: 'Keranjang' })}
+      >
+        <Ionicons name="cart" size={24} color={Colors.TEXT_DARK} />
+        <Text style={styles.menuText}>KERANJANG</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.PRIMARY,
+    paddingTop: 60,
+    paddingHorizontal: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+  },
+  closeButton: {
+    padding: 10,
+  },
+  menuItem: {
+    backgroundColor: Colors.BUTTON_HOMESCREEN,
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  menuText: {
+    fontSize: Fonts.SIZE_CATEGORY,
+    fontWeight: Fonts.WEIGHT_BOLD,
+    color: Colors.TEXT_DARK,
+    marginLeft: 15,
+    textTransform: 'uppercase',
+  },
+});
+
+export default DrawerNavigator;
