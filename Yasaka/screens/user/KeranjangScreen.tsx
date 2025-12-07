@@ -21,7 +21,7 @@ export default function KeranjangScreen() {
           style={StyleSheet.absoluteFill}
         />
 
-        <Header title="KERANJANG" onMenuPress={() => (navigation as any).openDrawer()} />
+        <Header title="KERANJANG" onMenuPress={() => (navigation as any).openDrawer()} onBackPress={() => navigation.goBack()} />
 
         <View style={styles.content}>
           <Text style={styles.text}>Keranjang Screen</Text>
