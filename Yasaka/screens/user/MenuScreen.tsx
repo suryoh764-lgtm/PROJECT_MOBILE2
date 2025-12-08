@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import RNPickerSelect from 'react-native-picker-select';
+
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
 import { menuItems } from '../../constants/DummyData';
@@ -15,16 +15,15 @@ import { RootStackParamList } from '../../navigation/UserStack';
 
 const categories = ["PAKET", "AYAM", "MINUMAN", "KENTANG"];
 
-const tableNumbers = Array.from({ length: 20 }, (_, i) => ({
-    label: `${i + 1}`,
-    value: `${i + 1}`,
-}));
+const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
 const MenuScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
     const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [tempTableNumber, setTempTableNumber] = useState(1);
 
     useEffect(() => {
         const loadSelectedTable = async () => {
@@ -74,14 +73,12 @@ const MenuScreen = () => {
                 <View style={styles.tableSelectionContainer}>
                     <Text style={styles.tableLabel}>PILIH NO MEJA :</Text>
                     <View style={styles.dropdownContainer}>
-                        <RNPickerSelect
-                            onValueChange={handleTableChange}
-                            items={tableNumbers}
-                            value={selectedTableNumber}
-                            style={pickerSelectStyles}
-                            useNativeAndroidPickerStyle={false}
-                            Icon={() => <Ionicons name="chevron-down" size={14} color="#555" />}
-                        />
+                        <TouchableOpacity style={pickerSelectStyles.inputIOS} onPress={() => { setTempTableNumber(parseInt(selectedTableNumber)); setIsModalVisible(true); }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Text style={{ fontSize: 16, color: '#000' }}>{selectedTableNumber}</Text>
+                                <Ionicons name="chevron-down" size={14} color="#555" />
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -143,6 +140,44 @@ const MenuScreen = () => {
                 </View>
 
             </ImageBackground>
+            <Modal
+                visible={isModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setIsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Pilih No Meja</Text>
+                        <View style={styles.tableSelector}>
+                            <TouchableOpacity onPress={() => setTempTableNumber(Math.max(1, tempTableNumber - 1))}>
+                                <Ionicons name="chevron-up" size={24} color="black" />
+                            </TouchableOpacity>
+                            <TextInput
+                                style={styles.tableNumberInput}
+                                value={tempTableNumber.toString()}
+                                onChangeText={(text) => {
+                                    const num = parseInt(text);
+                                    if (!isNaN(num) && num >= 1 && num <= 10) {
+                                        setTempTableNumber(num);
+                                    } else if (text === '') {
+                                        setTempTableNumber(1);
+                                    }
+                                }}
+                                keyboardType="numeric"
+                                maxLength={2}
+                                selectTextOnFocus
+                            />
+                            <TouchableOpacity onPress={() => setTempTableNumber(Math.min(10, tempTableNumber + 1))}>
+                                <Ionicons name="chevron-down" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={styles.confirmButton} onPress={() => { setSelectedTableNumber(tempTableNumber.toString()); handleTableChange(tempTableNumber.toString()); setIsModalVisible(false); }}>
+                            <Text style={styles.confirmButtonText}>Konfirmasi</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -264,6 +299,55 @@ const styles = StyleSheet.create({
     arrowIcon: {
         fontSize: 14,
         color: '#555',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    tableSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    tableNumberText: {
+        fontSize: 24,
+        marginHorizontal: 20,
+    },
+    tableNumberInput: {
+        fontSize: 24,
+        marginHorizontal: 20,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        textAlign: 'center',
+        width: 60,
+    },
+    confirmButton: {
+        backgroundColor: Colors.PRIMARY,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+    },
+    confirmButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
