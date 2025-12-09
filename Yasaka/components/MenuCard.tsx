@@ -11,26 +11,33 @@ interface MenuCardProps {
     quantity: number;
     onAdd: () => void;
     onSubtract: () => void;
+    showControls?: boolean;
+    showDescription?: boolean;
+    isLarge?: boolean;
+    transparentBackground?: boolean;
 }
 
-const MenuCard: React.FC<MenuCardProps> = ({ item, quantity, onAdd, onSubtract }) => {
+const MenuCard: React.FC<MenuCardProps> = ({ item, quantity, onAdd, onSubtract, showControls = true, showDescription = true, isLarge = false, transparentBackground = false }) => {
     return (
-        <View style={styles.card}>
-            <Image source={item.image} style={styles.image} />
+        <View style={[styles.card, isLarge && styles.cardLarge]}>
+            <Image source={item.image} style={[styles.image, isLarge && styles.imageLarge]} />
             <View style={styles.details}>
                 <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.description}>{item.description}</Text>
+                {showDescription && <Text style={styles.description}>{item.description}</Text>}
                 <View style={styles.bottomSection}>
                     <Text style={styles.price}>{formatCurrency(item.price)}</Text>
-                    <View style={styles.quantityContainer}>
-                        <TouchableOpacity onPress={onSubtract}>
-                            <Ionicons name="remove-circle" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text style={styles.quantity}>{quantity}</Text>
-                        <TouchableOpacity onPress={onAdd}>
-                            <Ionicons name="add-circle" size={24} color="black" />
-                        </TouchableOpacity>
-                    </View>
+                    {showControls && (
+                        <View style={styles.quantityContainer}>
+                            <TouchableOpacity onPress={onSubtract}>
+                                <Ionicons name="remove-circle" size={24} color="black" />
+                            </TouchableOpacity>
+                            <Text style={styles.quantity}>{quantity}</Text>
+                            <TouchableOpacity onPress={onAdd}>
+                                <Ionicons name="add-circle" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    {!showControls && <Text style={styles.quantity}>{quantity}</Text>}
                 </View>
             </View>
         </View>
@@ -51,11 +58,23 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    cardLarge: {
+        margin: 0,
+        marginBottom: 10,
+        padding: 15,
+        minHeight: 100,
+        width: '100%',
+    },
     image: {
         width: 80,
         height: 80,
         borderRadius: 40,
         marginRight: 10,
+    },
+    imageLarge: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
     },
     details: {
         flex: 1,
