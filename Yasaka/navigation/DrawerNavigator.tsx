@@ -52,6 +52,13 @@ const DrawerContent = ({ navigation }: any) => {
           <Ionicons name="cart" size={24} color={Colors.TEXT_DARK} />
           <Text style={styles.menuText}>KERANJANG</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('UserStack', { screen: 'StatusPesanan' })}
+        >
+          <Ionicons name="time-outline" size={24} color={Colors.TEXT_DARK} />
+          <Text style={styles.menuText}>STATUS PESANAN</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
