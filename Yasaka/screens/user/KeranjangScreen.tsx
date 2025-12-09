@@ -375,5 +375,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: Fonts.SIZE_BUTTON,
     fontWeight: Fonts.WEIGHT_BOLD,
+    textAlign: 'center',
   },
 });
