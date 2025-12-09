@@ -12,6 +12,7 @@ import { menuItems } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 import { RootStackParamList } from '../../navigation/UserStack';
+import { useCart } from '../../context/CartContext';
 
 const categories = ["PAKET", "AYAM", "MINUMAN", "KENTANG"];
 
@@ -19,9 +20,9 @@ const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
 const MenuScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { cartItems, addToCart, removeFromCart, updateQuantity, getTotalItems } = useCart();
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
-    const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [tempTableNumber, setTempTableNumber] = useState(1);
 
@@ -48,7 +49,7 @@ const MenuScreen = () => {
         }
     };
 
-    const totalItems = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+    const totalItems = getTotalItems();
 
     const handleOrderNow = () => {
         navigation.navigate('Keranjang', { selectedTable: selectedTableNumber });
@@ -107,18 +108,13 @@ const MenuScreen = () => {
                             <MenuCard
                                 key={item.id}
                                 item={item}
-                                quantity={quantities[item.id] || 0}
-                                onAdd={() => {
-                                    setQuantities(prev => ({
-                                        ...prev,
-                                        [item.id]: (prev[item.id] || 0) + 1
-                                    }));
-                                }}
+                                quantity={cartItems.find(cartItem => cartItem.id === item.id)?.quantity || 0}
+                                onAdd={() => addToCart(item)}
                                 onSubtract={() => {
-                                    setQuantities(prev => ({
-                                        ...prev,
-                                        [item.id]: Math.max(0, (prev[item.id] || 0) - 1)
-                                    }));
+                                    const cartItem = cartItems.find(cartItem => cartItem.id === item.id);
+                                    if (cartItem) {
+                                        updateQuantity(item.id, cartItem.quantity - 1);
+                                    }
                                 }}
                             />
                         ))
