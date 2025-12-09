@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, TouchableOpacity, Image, Modal, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,41 @@ export default function KeranjangScreen() {
   const { selectedTable } = (route.params as { selectedTable?: string }) || {};
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
   const [notes, setNotes] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isModalVisible) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          tension: 50,
+          friction: 7,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 50,
+          friction: 7,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isModalVisible]);
 
   return (
     <View style={styles.container}>
@@ -97,12 +132,32 @@ export default function KeranjangScreen() {
         {cartItems.length > 0 && (
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Total: {formatCurrency(getTotalPrice())}</Text>
-            <TouchableOpacity style={styles.checkoutButton}>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => setIsModalVisible(true)}>
               <Text style={styles.checkoutButtonText}>PESAN SEKARANG</Text>
             </TouchableOpacity>
           </View>
         )}
       </ImageBackground>
+
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="none"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <Animated.View style={[styles.modalOverlay, { opacity: opacityAnim }]}>
+          <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleAnim }] }]}>
+            <Ionicons name="checkmark-circle" size={100} color={Colors.PRIMARY} style={styles.modalLogo} />
+            <Text style={styles.modalTitle}>PESANAN DI TERIMA</Text>
+            <Text style={styles.modalDescription}>
+              Pesanan mu sudah diterima dan akan segera dipersiapkan, silahkan membayar ke kasir agar pesanan di persiapkan.
+            </Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => { setIsModalVisible(false); (navigation as any).navigate('StatusPesanan'); }}>
+              <Text style={styles.modalButtonText}>LIHAT STATUS PESANAN</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
     </View>
   );
 }
@@ -260,6 +315,64 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     color: Colors.TEXT_DARK,
+    fontSize: Fonts.SIZE_BUTTON,
+    fontWeight: Fonts.WEIGHT_BOLD,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  modalLogo: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: Fonts.SIZE_HEADER,
+    fontWeight: Fonts.WEIGHT_BOLD,
+    color: Colors.TEXT_DARK,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: Fonts.SIZE_MENU_ITEM_NAME,
+    color: Colors.TEXT_DARK,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    shadowColor: Colors.PRIMARY,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  modalButtonText: {
+    color: 'white',
     fontSize: Fonts.SIZE_BUTTON,
     fontWeight: Fonts.WEIGHT_BOLD,
   },
