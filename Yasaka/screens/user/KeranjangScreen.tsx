@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, TouchableOpacity, Image, Modal, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -5,19 +6,23 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import { useCart } from '../../context/CartContext';
+import { useOrders } from '../../context/OrderContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 
 export default function KeranjangScreen() {
+
   const navigation = useNavigation();
   const route = useRoute();
   const { selectedTable } = (route.params as { selectedTable?: string }) || {};
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
+  const { addOrder } = useOrders();
   const [notes, setNotes] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+
 
   useEffect(() => {
     if (isModalVisible) {
@@ -50,6 +55,23 @@ export default function KeranjangScreen() {
       ]).start();
     }
   }, [isModalVisible]);
+
+  const handleCheckout = () => {
+    // Buat order baru dari data keranjang
+    addOrder({
+      items: cartItems,
+      totalPrice: getTotalPrice(),
+      totalItems: cartItems.reduce((total, item) => total + item.quantity, 0),
+      tableNumber: selectedTable || 'Belum dipilih',
+      notes: notes,
+    });
+    
+    // Bersihkan keranjang
+    clearCart();
+    
+    // Tampilkan modal
+    setIsModalVisible(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -132,7 +154,8 @@ export default function KeranjangScreen() {
         {cartItems.length > 0 && (
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Total: {formatCurrency(getTotalPrice())}</Text>
-            <TouchableOpacity style={styles.checkoutButton} onPress={() => setIsModalVisible(true)}>
+
+            <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
               <Text style={styles.checkoutButtonText}>PESAN SEKARANG</Text>
             </TouchableOpacity>
           </View>
