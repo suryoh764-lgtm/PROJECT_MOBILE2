@@ -1,19 +1,22 @@
+
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
-import { useCart } from '../../context/CartContext';
+import { useOrders } from '../../context/OrderContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
+
 
 export default function StatusPesananScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { selectedTable } = (route.params as { selectedTable?: string }) || {};
-  const { cartItems, getTotalPrice, getTotalItems } = useCart();
+  const { getCurrentOrder } = useOrders();
+  const currentOrder = getCurrentOrder();
 
   return (
     <View style={styles.container}>
@@ -30,27 +33,32 @@ export default function StatusPesananScreen() {
 
         <Header title="STATUS PESANAN" onMenuPress={() => (navigation as any).openDrawer()} onBackPress={() => navigation.goBack()} />
 
+
         <View style={styles.infoContainer}>
           <View style={styles.tableInfo}>
             <Text style={styles.label}>NO MEJA:</Text>
-            <Text style={styles.value}>{selectedTable || '1'}</Text>
+            <Text style={styles.value}>{currentOrder?.tableNumber || selectedTable || 'Belum dipilih'}</Text>
           </View>
           <View style={styles.statusInfo}>
             <Text style={styles.label}>STATUS:</Text>
-            <Text style={styles.value}>SEDANG DIPROSES</Text>
+            <Text style={styles.value}>
+              {currentOrder?.status === 'sedang_diproses' ? 'SEDANG DIPROSES' : 
+               currentOrder?.status === 'siap_diambil' ? 'SIAP DIAMBIL' : 'SELESAI'}
+            </Text>
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.label}>WAKTU:</Text>
-            <Text style={styles.value}>{new Date().toLocaleString('id-ID')}</Text>
+            <Text style={styles.value}>{currentOrder?.orderTime || new Date().toLocaleString('id-ID')}</Text>
           </View>
         </View>
+
 
         <View style={styles.contentContainer}>
           <Text style={styles.sectionTitle}>PESANAN ANDA</Text>
           <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            {cartItems.length > 0 ? (
+            {currentOrder && currentOrder.items.length > 0 ? (
               <View style={styles.orderItemsContainer}>
-                {cartItems.map((item) => (
+                {currentOrder.items.map((item: any) => (
                   <MenuCard
                     key={item.id}
                     item={item}
@@ -67,16 +75,22 @@ export default function StatusPesananScreen() {
               <Text style={styles.emptyText}>Tidak ada pesanan</Text>
             )}
           </ScrollView>
-          {cartItems.length > 0 && (
+          {currentOrder && currentOrder.items.length > 0 && (
             <View style={styles.summaryContainer}>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Total Item:</Text>
-                <Text style={styles.summaryValue}>{getTotalItems()}</Text>
+                <Text style={styles.summaryValue}>{currentOrder.totalItems}</Text>
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Total Harga:</Text>
-                <Text style={styles.summaryValue}>{formatCurrency(getTotalPrice())}</Text>
+                <Text style={styles.summaryValue}>{formatCurrency(currentOrder.totalPrice)}</Text>
               </View>
+              {currentOrder.notes && (
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Catatan:</Text>
+                  <Text style={styles.summaryValue}>{currentOrder.notes}</Text>
+                </View>
+              )}
             </View>
           )}
         </View>
