@@ -80,11 +80,12 @@ const DrawerContent = (props: any) => {
 
 
       <View style={styles.adminButtonContainer}>
+
         <TouchableOpacity
           style={styles.adminMenuItem}
           onPress={() => {
             navigation.closeDrawer();
-            navigation.navigate('Admin');
+            navigation.navigate('Admin', { screen: 'AdminLogin' });
           }}
         >
           <Text style={styles.adminMenuText}>LOGIN ADMIN</Text>
