@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, Alert, StatusBar } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TEXT_BG_TRANSPARENT, TEXT_DARK, PRIMARY } from '../../constants/Colors';
@@ -36,168 +36,195 @@ export default function AdminLoginScreen({ navigation }: { navigation: AdminLogi
     };
 
     return (
-        
-        <ImageBackground 
-            source={require('../../assets/images/BACKROUND.jpeg')}
-            style={styles.background}
-            resizeMode="cover"
-        >
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#000" />
+            
+            <ImageBackground 
+                source={require('../../assets/images/BACKROUND.jpeg')}
+                style={styles.backgroundImage}
+                resizeMode="cover"
+            >
+                <View style={styles.overlay} />
+                
+                <View style={styles.content}>
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <Text style={styles.title}>ADMIN LOGIN</Text>
+                        <Text style={styles.subtitle}>Masuk ke dashboard admin</Text>
+                    </View>
 
-            <View style={styles.overlay} /> 
+                    {/* Form Container */}
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputContainer}>
+                            <View style={styles.inputGroup}>
+                                <AntDesign name="user" size={20} color={PRIMARY} style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Email atau Username"
+                                    placeholderTextColor="#A0A0A0"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                />
+                            </View>
+                            
+                            <View style={styles.inputGroup}>
+                                <AntDesign name="lock" size={20} color={PRIMARY} style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Password"
+                                    placeholderTextColor="#A0A0A0"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry
+                                    autoCapitalize="none"
+                                />
+                            </View>
+                        </View>
 
-            <View style={styles.contentContainer}>
+                        {/* Login Button */}
+                        <TouchableOpacity 
+                            style={styles.loginButton}
+                            onPress={handleLogin}
+                            activeOpacity={0.9}
+                        >
+                            <Text style={styles.loginButtonText}>Masuk</Text>
 
-                <View style={styles.textOverlay}>
-                    <Text style={styles.yasakaText}>admin</Text>
-                    <Text style={styles.friedChickenText}>login</Text>
+                            <AntDesign name="arrow-right" size={18} color="white" />
+                        </TouchableOpacity>
+
+                        {/* Back Button */}
+                        <TouchableOpacity 
+                            style={styles.backButton}
+                            onPress={handleBack}
+                            activeOpacity={0.7}
+                        >
+
+                            <AntDesign name="arrow-left" size={16} color={PRIMARY} />
+                            <Text style={styles.backButtonText}>Kembali</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-
-                <View style={styles.formContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email atau Username"
-                        placeholderTextColor={TEXT_DARK}
-                        value={email}
-                        onChangeText={setEmail}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                    />
-                    
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        placeholderTextColor={TEXT_DARK}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        autoCapitalize="none"
-                    />
-
-                    <TouchableOpacity 
-                        style={styles.button}
-                        onPress={handleLogin}
-                        activeOpacity={0.8}>
-                        <Text style={styles.buttonText}>LOGIN</Text>
-                        <AntDesign name="arrow-right" size={24} color="black" style={styles.buttonIcon} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.backButton}
-                        onPress={handleBack}
-                        activeOpacity={0.8}>
-                        <Text style={styles.backButtonText}>KEMBALI</Text>
-                    </TouchableOpacity>
-                </View>
-
-            </View>
-        </ImageBackground>
+            </ImageBackground>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'flex-end', 
-    alignItems: 'center',
-  },
-
-  textOverlay: {
-    position: 'absolute', 
-    top: '20%', 
-    alignItems: 'center',
-    width: '100%',
-  },
-  yasakaText: {
-    fontSize: 60, 
-    color: TEXT_DARK, 
-    backgroundColor: TEXT_BG_TRANSPARENT,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    paddingTop: 0,
-    paddingBottom: 25,
-    letterSpacing: 2,
-    textShadowColor: 'black', 
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
-  },
-  friedChickenText: {
-    fontSize: 25,
-    color: TEXT_DARK,
-    marginTop: -30, 
-    letterSpacing: 1.5,
-    fontStyle: 'italic',
-  },
-
-  formContainer: {
-    width: '100%',
-    maxWidth: 350,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 20,
-    padding: 25,
-    marginBottom: 40,
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
-  },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderWidth: 1,
-    borderColor: PRIMARY,
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    marginBottom: 15,
-    color: TEXT_DARK,
-  },
-
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E0E0E0', 
-    borderRadius: 30,
-    paddingHorizontal: 25,
-    paddingVertical: 12,
-    marginBottom: 15,
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8, 
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'black',
-    marginRight: 10,
-    letterSpacing: 1,
-  },
-  buttonIcon: {},
-
-  backButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: PRIMARY,
-    borderRadius: 30,
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: PRIMARY,
-    letterSpacing: 1,
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    backgroundImage: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    },
+    content: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 48,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        letterSpacing: 2,
+        textAlign: 'center',
+        marginBottom: 8,
+        textShadowColor: 'rgba(0, 0, 0, 0.7)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
+    subtitle: {
+        fontSize: 14,
+        fontWeight: '400',
+        color: '#E0E0E0',
+        textAlign: 'center',
+        letterSpacing: 0.5,
+    },
+    formContainer: {
+        width: '100%',
+        maxWidth: 320,
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        borderRadius: 20,
+        padding: 32,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    inputContainer: {
+        marginBottom: 32,
+    },
+    inputGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F8F9FA',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E9ECEF',
+        marginBottom: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+    },
+    inputIcon: {
+        marginRight: 12,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '400',
+        color: TEXT_DARK,
+        padding: 0,
+    },
+    loginButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: PRIMARY,
+        borderRadius: 12,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        marginBottom: 20,
+        shadowColor: PRIMARY,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    loginButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#FFFFFF',
+        marginRight: 8,
+        letterSpacing: 0.5,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+    },
+    backButtonText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: PRIMARY,
+        marginLeft: 6,
+        letterSpacing: 0.3,
+    },
 });
