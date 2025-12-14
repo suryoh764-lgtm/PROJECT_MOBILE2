@@ -18,10 +18,11 @@ export default function App() {
     <CartProvider>
       <OrderProvider>
         <NavigationContainer>
+
           <Stack.Navigator
             screenOptions={{ 
               headerShown: false,
-              presentation: 'modal'
+              presentation: 'card'
             }}
           >
             <Stack.Screen name="User" component={DrawerNavigator} />
