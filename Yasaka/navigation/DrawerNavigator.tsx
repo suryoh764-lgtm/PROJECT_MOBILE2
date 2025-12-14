@@ -19,7 +19,11 @@ const DrawerNavigator = () => {
   );
 };
 
-const DrawerContent = ({ navigation }: any) => {
+
+const DrawerContent = (props: any) => {
+  const { navigation } = props;
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -33,36 +37,63 @@ const DrawerContent = ({ navigation }: any) => {
       <View style={styles.menuContainer}>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('UserStack', { screen: 'Home' })}
+          onPress={() => {
+            navigation.closeDrawer();
+            navigation.navigate('UserStack', { screen: 'Home' });
+          }}
         >
           <Ionicons name="home" size={24} color={Colors.TEXT_DARK} />
           <Text style={styles.menuText}>HOME</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('UserStack', { screen: 'Menu' })}
+          onPress={() => {
+            navigation.closeDrawer();
+            navigation.navigate('UserStack', { screen: 'Menu' });
+          }}
         >
           <Ionicons name="book" size={24} color={Colors.TEXT_DARK} />
           <Text style={styles.menuText}>MENU</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('UserStack', { screen: 'Keranjang' })}
+          onPress={() => {
+            navigation.closeDrawer();
+            navigation.navigate('UserStack', { screen: 'Keranjang' });
+          }}
         >
           <Ionicons name="cart" size={24} color={Colors.TEXT_DARK} />
           <Text style={styles.menuText}>KERANJANG</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('UserStack', { screen: 'StatusPesanan' })}
+          onPress={() => {
+            navigation.closeDrawer();
+            navigation.navigate('UserStack', { screen: 'StatusPesanan' });
+          }}
         >
           <Ionicons name="time-outline" size={24} color={Colors.TEXT_DARK} />
           <Text style={styles.menuText}>STATUS PESANAN</Text>
         </TouchableOpacity>
       </View>
+
+
+
+      <View style={styles.adminButtonContainer}>
+        <TouchableOpacity
+          style={styles.adminMenuItem}
+          onPress={() => {
+            navigation.closeDrawer();
+            navigation.navigate('Admin');
+          }}
+        >
+          <Text style={styles.adminMenuText}>LOGIN ADMIN</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -82,6 +113,10 @@ const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
   },
+  adminButtonContainer: {
+    marginBottom: 20,
+  },
+
   menuItem: {
     backgroundColor: Colors.BUTTON_HOMESCREEN,
     paddingHorizontal: 15,
@@ -90,6 +125,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 20,
+  },
+
+  adminMenuItem: {
+    backgroundColor: Colors.BUTTON_HOMESCREEN,
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  adminMenuText: {
+    fontSize: Fonts.SIZE_CATEGORY,
+    fontWeight: Fonts.WEIGHT_BOLD,
+    color: Colors.TEXT_DARK,
+    textTransform: 'uppercase',
   },
   menuText: {
     fontSize: Fonts.SIZE_CATEGORY,
@@ -101,3 +153,4 @@ const styles = StyleSheet.create({
 });
 
 export default DrawerNavigator;
+
