@@ -23,7 +23,8 @@ export default function AdminLoginScreen({ navigation }: { navigation: AdminLogi
             return;
         }
 
-        if (email === 'admin' && password === 'admin') {
+
+        if (email === 'ADMIN' && password === 'admin123') {
             Alert.alert('Success', 'Login berhasil!');
             navigation.navigate('TambahMenu');
         } else {
@@ -47,13 +48,11 @@ export default function AdminLoginScreen({ navigation }: { navigation: AdminLogi
                 <View style={styles.overlay} />
                 
                 <View style={styles.content}>
-                    {/* Header */}
                     <View style={styles.header}>
                         <Text style={styles.title}>ADMIN LOGIN</Text>
                         <Text style={styles.subtitle}>Masuk ke dashboard admin</Text>
                     </View>
 
-                    {/* Form Container */}
                     <View style={styles.formContainer}>
                         <View style={styles.inputContainer}>
                             <View style={styles.inputGroup}>
@@ -83,7 +82,6 @@ export default function AdminLoginScreen({ navigation }: { navigation: AdminLogi
                             </View>
                         </View>
 
-                        {/* Login Button */}
                         <TouchableOpacity 
                             style={styles.loginButton}
                             onPress={handleLogin}
@@ -93,8 +91,6 @@ export default function AdminLoginScreen({ navigation }: { navigation: AdminLogi
 
                             <AntDesign name="arrow-right" size={18} color="white" />
                         </TouchableOpacity>
-
-                        {/* Back Button */}
                         <TouchableOpacity 
                             style={styles.backButton}
                             onPress={handleBack}
