@@ -1,10 +1,14 @@
+
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, Alert, StatusBar } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TEXT_BG_TRANSPARENT, TEXT_DARK, PRIMARY } from '../../constants/Colors';
+import { useAdmin } from '../../context/AdminContext';
+
 
 type AdminStackParamList = {
+    AdminDrawer: undefined;
     TambahMenu: undefined;
     EditMenu: { menuId: string };
     EditStatusPesanan: undefined;
@@ -12,21 +16,28 @@ type AdminStackParamList = {
 
 type AdminLoginScreenNavigationProp = NativeStackNavigationProp<AdminStackParamList, any>;
 
-export default function AdminLoginScreen({ navigation }: { navigation: AdminLoginScreenNavigationProp }) { 
-    
+
+interface AdminLoginScreenProps {
+    navigation: AdminLoginScreenNavigationProp;
+}
+
+
+export default function AdminLoginScreen({ navigation }: AdminLoginScreenProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { login } = useAdmin();
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (email.trim() === '' || password.trim() === '') {
             Alert.alert('Error', 'Email dan password harus diisi');
             return;
         }
 
 
-        if (email === 'ADMIN' && password === 'admin123') {
+        const success = await login(email, password);
+        if (success) {
             Alert.alert('Success', 'Login berhasil!');
-            navigation.navigate('TambahMenu');
+            navigation.navigate('AdminDrawer');
         } else {
             Alert.alert('Error', 'Email atau password salah');
         }
