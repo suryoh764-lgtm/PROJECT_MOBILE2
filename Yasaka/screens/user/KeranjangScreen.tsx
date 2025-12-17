@@ -57,7 +57,6 @@ export default function KeranjangScreen() {
   }, [isModalVisible]);
 
   const handleCheckout = () => {
-    // Buat order baru dari data keranjang
     addOrder({
       items: cartItems,
       totalPrice: getTotalPrice(),
@@ -65,11 +64,7 @@ export default function KeranjangScreen() {
       tableNumber: selectedTable || 'Belum dipilih',
       notes: notes,
     });
-    
-    // Bersihkan keranjang
     clearCart();
-    
-    // Tampilkan modal
     setIsModalVisible(true);
   };
 

@@ -1,22 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    ImageBackground, 
-    ScrollView, 
-    TouchableOpacity, 
-    TextInput, 
-    Alert, 
-    Image,
-    Modal
-} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, TextInput, Alert, Image,Modal} from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-import Header from '../../components/Header';
+import AdminHeader from '../../components/AdminHeader';
 import { menuItems, MenuItem } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
@@ -156,8 +144,11 @@ const EditMenuScreen: React.FC = () => {
                     style={StyleSheet.absoluteFill}
                 />
 
-                <Header 
+
+
+                <AdminHeader 
                     title={isEditMode ? "EDIT MENU" : "TAMBAH MENU"} 
+                    navigation={navigation}
                     onBackPress={() => navigation.goBack()} 
                 />
 

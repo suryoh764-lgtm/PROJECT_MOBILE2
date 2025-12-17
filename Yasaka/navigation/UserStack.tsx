@@ -25,7 +25,7 @@ export default function UserStack() {
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
     >
-     <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Menu" component={MenuScreen} />
       <Stack.Screen name="Keranjang" component={KeranjangScreen} />
       <Stack.Screen name="PesananDiterima" component={PesananDiterimaScreen} />
