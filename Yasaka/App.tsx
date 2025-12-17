@@ -1,10 +1,12 @@
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
+import { AdminProvider } from './context/AdminContext';
 import DrawerNavigator from './navigation/DrawerNavigator';
-import AdminStack from './navigation/AdminStack';
+import AdminStackWrapper from './navigation/AdminStackWrapper';
 
 export type RootStackParamList = {
   User: undefined;
@@ -17,18 +19,20 @@ export default function App() {
   return (
     <CartProvider>
       <OrderProvider>
-        <NavigationContainer>
+        <AdminProvider>
+          <NavigationContainer>
 
-          <Stack.Navigator
-            screenOptions={{ 
-              headerShown: false,
-              presentation: 'card'
-            }}
-          >
-            <Stack.Screen name="User" component={DrawerNavigator} />
-            <Stack.Screen name="Admin" component={AdminStack} />
-          </Stack.Navigator>
-        </NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{ 
+                headerShown: false,
+                presentation: 'card'
+              }}
+            >
+              <Stack.Screen name="User" component={DrawerNavigator} />
+              <Stack.Screen name="Admin" component={AdminStackWrapper} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </AdminProvider>
       </OrderProvider>
     </CartProvider>
   );
