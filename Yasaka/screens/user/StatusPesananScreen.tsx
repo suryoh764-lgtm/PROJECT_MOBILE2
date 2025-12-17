@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -9,7 +8,6 @@ import { useOrders } from '../../context/OrderContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
-
 
 export default function StatusPesananScreen() {
   const navigation = useNavigation();
@@ -33,7 +31,6 @@ export default function StatusPesananScreen() {
 
         <Header title="STATUS PESANAN" onMenuPress={() => (navigation as any).openDrawer()} onBackPress={() => navigation.goBack()} />
 
-
         <View style={styles.infoContainer}>
           <View style={styles.tableInfo}>
             <Text style={styles.label}>NO MEJA:</Text>
@@ -41,24 +38,26 @@ export default function StatusPesananScreen() {
           </View>
           <View style={styles.statusInfo}>
             <Text style={styles.label}>STATUS:</Text>
-            <Text style={styles.value}>
-              {currentOrder?.status === 'sedang_diproses' ? 'SEDANG DIPROSES' : 
-               currentOrder?.status === 'siap_diambil' ? 'SIAP DIAMBIL' : 'SELESAI'}
-            </Text>
+            <Text style={styles.value}>SEDANG DIPROSES</Text>
           </View>
           <View style={styles.timeInfo}>
             <Text style={styles.label}>WAKTU:</Text>
             <Text style={styles.value}>{currentOrder?.orderTime || new Date().toLocaleString('id-ID')}</Text>
           </View>
+          {currentOrder?.notes && (
+            <View style={styles.notesInfo}>
+              <Text style={styles.label}>CATATAN:</Text>
+              <Text style={styles.value}>{currentOrder.notes}</Text>
+            </View>
+          )}
         </View>
-
 
         <View style={styles.contentContainer}>
           <Text style={styles.sectionTitle}>PESANAN ANDA</Text>
           <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             {currentOrder && currentOrder.items.length > 0 ? (
               <View style={styles.orderItemsContainer}>
-                {currentOrder.items.map((item: any) => (
+                {currentOrder.items.map((item) => (
                   <MenuCard
                     key={item.id}
                     item={item}
@@ -85,12 +84,6 @@ export default function StatusPesananScreen() {
                 <Text style={styles.summaryLabel}>Total Harga:</Text>
                 <Text style={styles.summaryValue}>{formatCurrency(currentOrder.totalPrice)}</Text>
               </View>
-              {currentOrder.notes && (
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Catatan:</Text>
-                  <Text style={styles.summaryValue}>{currentOrder.notes}</Text>
-                </View>
-              )}
             </View>
           )}
         </View>
@@ -132,6 +125,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   timeInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  notesInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -215,3 +214,4 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 });
+
