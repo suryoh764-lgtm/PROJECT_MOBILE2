@@ -1,27 +1,114 @@
 
+
+
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Alert, Image, TextInput, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import Header from '../../components/Header';
+import AdminHeader from '../../components/AdminHeader';
 import { menuItems, MenuItem } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 
 const categories = ["PAKET", "AYAM", "MINUMAN", "KENTANG"];
 
+interface TambahMenuScreenProps {
+    navigation: NativeStackNavigationProp<any>;
+    onMenuPress?: () => void;
+}
 
-const TambahMenuScreen = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<any>>();
+interface MenuFormData {
+    name: string;
+    description: string;
+    price: string;
+    imageUrl: string;
+    category: string;
+}
+
+const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) => {
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
     const [menuList, setMenuList] = useState<MenuItem[]>(menuItems);
+    const [showForm, setShowForm] = useState(false);
+    const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+    const [tempImageUrl, setTempImageUrl] = useState('');
 
+    const [formData, setFormData] = useState<MenuFormData>({
+        name: '',
+        description: '',
+        price: '',
+        imageUrl: '',
+        category: 'PAKET'
+    });
 
-    const handleAddMenu = () => {
-        navigation.navigate('EditMenu', { mode: 'add' });
+    const [errors, setErrors] = useState<Partial<MenuFormData>>({});
+
+    const resetForm = () => {
+        setFormData({
+            name: '',
+            description: '',
+            price: '',
+            imageUrl: '',
+            category: 'PAKET'
+        });
+        setErrors({});
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: Partial<MenuFormData> = {};
+
+        if (!formData.name.trim()) {
+            newErrors.name = 'Nama menu harus diisi';
+        }
+
+        if (!formData.description.trim()) {
+            newErrors.description = 'Deskripsi harus diisi';
+        }
+
+        if (!formData.price.trim()) {
+            newErrors.price = 'Harga harus diisi';
+        } else {
+            const price = parseFloat(formData.price);
+            if (isNaN(price) || price <= 0) {
+                newErrors.price = 'Harga harus berupa angka positif';
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSaveMenu = () => {
+        if (!validateForm()) {
+            return;
+        }
+
+        const price = parseFloat(formData.price);
+        const newMenuItem: MenuItem = {
+            id: Date.now().toString(),
+            name: formData.name.trim(),
+            description: formData.description.trim(),
+            price: price,
+            category: formData.category,
+            image: formData.imageUrl.trim() 
+                ? { uri: formData.imageUrl.trim() } 
+                : require('../../assets/images/Bubble.png')
+        };
+
+        setMenuList(prev => [newMenuItem, ...prev]);
+        Alert.alert('Sukses', 'Menu berhasil ditambahkan!');
+        setShowForm(false);
+        resetForm();
+    };
+
+    const handleImageSelect = () => {
+        if (tempImageUrl.trim()) {
+            setFormData(prev => ({ ...prev, imageUrl: tempImageUrl.trim() }));
+        }
+        setIsImageModalVisible(false);
+        setTempImageUrl('');
     };
 
     const handleEditMenu = (menuId: string) => {
@@ -48,6 +135,190 @@ const TambahMenuScreen = () => {
 
     const filteredMenu = menuList.filter(item => item.category === selectedCategory);
 
+    const renderImagePreview = () => {
+        const imageSource = formData.imageUrl.trim() 
+            ? { uri: formData.imageUrl.trim() }
+            : require('../../assets/images/Bubble.png');
+
+        return (
+            <View style={styles.imagePreviewContainer}>
+                <Image 
+                    source={imageSource} 
+                    style={styles.imagePreview}
+                    resizeMode="cover"
+                    onError={() => {
+                        Alert.alert('Error', 'URL gambar tidak valid');
+                        setFormData(prev => ({ ...prev, imageUrl: '' }));
+                    }}
+                />
+                <TouchableOpacity 
+                    style={styles.changeImageButton}
+                    onPress={() => setIsImageModalVisible(true)}
+                >
+                    <Ionicons name="camera" size={20} color="white" />
+                    <Text style={styles.changeImageText}>Pilih Gambar</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    const renderForm = () => (
+        <View style={styles.formContainer}>
+            <View style={styles.formHeader}>
+                <Text style={styles.formTitle}>TAMBAH MENU BARU</Text>
+                <TouchableOpacity 
+                    style={styles.closeButton}
+                    onPress={() => {
+                        setShowForm(false);
+                        resetForm();
+                    }}
+                >
+                    <Ionicons name="close" size={24} color={Colors.TEXT_LIGHT} />
+                </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.formScrollView} showsVerticalScrollIndicator={false}>
+                {renderImagePreview()}
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Nama Menu *</Text>
+                    <TextInput
+                        style={[styles.input, errors.name && styles.inputError]}
+                        placeholder="Masukkan nama menu"
+                        value={formData.name}
+                        onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
+                    />
+                    {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Deskripsi *</Text>
+                    <TextInput
+                        style={[styles.input, styles.textArea, errors.description && styles.inputError]}
+                        placeholder="Masukkan deskripsi menu"
+                        multiline
+                        numberOfLines={4}
+                        value={formData.description}
+                        onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
+                    />
+                    {errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Harga (Rp) *</Text>
+                    <TextInput
+                        style={[styles.input, errors.price && styles.inputError]}
+                        placeholder="Masukkan harga menu"
+                        keyboardType="numeric"
+                        value={formData.price}
+                        onChangeText={(text) => setFormData(prev => ({ ...prev, price: text }))}
+                    />
+                    {errors.price && <Text style={styles.errorText}>{errors.price}</Text>}
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Kategori *</Text>
+                    <View style={styles.categorySelector}>
+                        {categories.map((cat) => (
+                            <TouchableOpacity
+                                key={cat}
+                                style={[
+                                    styles.categoryChip,
+                                    formData.category === cat && styles.categoryChipSelected
+                                ]}
+                                onPress={() => setFormData(prev => ({ ...prev, category: cat }))}
+                            >
+                                <Text style={[
+                                    styles.categoryChipText,
+                                    formData.category === cat && styles.categoryChipTextSelected
+                                ]}>{cat}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity 
+                        style={styles.cancelButton}
+                        onPress={() => {
+                            setShowForm(false);
+                            resetForm();
+                        }}
+                    >
+                        <Text style={styles.cancelButtonText}>Batal</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                        style={styles.saveButton}
+                        onPress={handleSaveMenu}
+                    >
+                        <Ionicons name="save" size={20} color="white" />
+                        <Text style={styles.saveButtonText}>Simpan Menu</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </View>
+    );
+
+    if (showForm) {
+        return (
+            <View style={styles.container}>
+                <ImageBackground
+                    source={require('../../assets/images/cover.jpg')}
+                    style={styles.background}
+                    resizeMode="cover"
+                >
+                    <BlurView
+                        intensity={30}
+                        tint="dark"
+                        style={StyleSheet.absoluteFill}
+                    />
+                    {renderForm()}
+                </ImageBackground>
+
+                <Modal
+                    visible={isImageModalVisible}
+                    transparent={true}
+                    animationType="slide"
+                    onRequestClose={() => setIsImageModalVisible(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Masukkan URL Gambar</Text>
+                            
+                            <TextInput
+                                style={styles.modalInput}
+                                placeholder="https://example.com/image.jpg"
+                                value={tempImageUrl}
+                                onChangeText={setTempImageUrl}
+                                autoCapitalize="none"
+                                keyboardType="url"
+                            />
+
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity 
+                                    style={styles.modalCancelButton}
+                                    onPress={() => {
+                                        setIsImageModalVisible(false);
+                                        setTempImageUrl('');
+                                    }}
+                                >
+                                    <Text style={styles.modalCancelText}>Batal</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    style={styles.modalConfirmButton}
+                                    onPress={handleImageSelect}
+                                >
+                                    <Text style={styles.modalConfirmText}>Pilih</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <ImageBackground
@@ -61,7 +332,12 @@ const TambahMenuScreen = () => {
                     style={StyleSheet.absoluteFill}
                 />
 
-                <Header title="TAMBAH MENU" onBackPress={() => navigation.goBack()} />
+
+                <AdminHeader 
+                    title="MANAJEMEN MENU" 
+                    navigation={navigation}
+                    onBackPress={() => navigation.goBack()} 
+                />
 
                 <View style={styles.categoryContainer}>
                     {categories.map((cat, index) => (
@@ -115,12 +391,13 @@ const TambahMenuScreen = () => {
                     ))}
                 </ScrollView>
 
-                <TouchableOpacity style={styles.addButton} onPress={handleAddMenu}>
+                <TouchableOpacity 
+                    style={styles.addButton} 
+                    onPress={() => setShowForm(true)}
+                >
                     <Ionicons name="add" size={24} color="white" />
-                    <Text style={styles.addButtonText}>Tambah Menu</Text>
+                    <Text style={styles.addButtonText}>Tambah Menu Baru</Text>
                 </TouchableOpacity>
-
-
             </ImageBackground>
         </View>
     );
@@ -206,7 +483,6 @@ const styles = StyleSheet.create({
         fontWeight: Fonts.WEIGHT_BOLD,
         color: Colors.PRIMARY,
     },
-
     actionButtons: {
         flexDirection: 'row',
         gap: 8,
@@ -238,13 +514,219 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 6,
     },
-
     addButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: Fonts.WEIGHT_BOLD,
         marginLeft: 8,
         textTransform: 'uppercase',
+    },
+    
+    // Form Styles
+    formContainer: {
+        flex: 1,
+        marginTop: 90,
+        marginBottom: 20,
+        marginHorizontal: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        borderRadius: 20,
+        overflow: 'hidden',
+    },
+    formHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: Colors.PRIMARY,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+    },
+    formTitle: {
+        fontSize: 18,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        color: Colors.TEXT_LIGHT,
+        textTransform: 'uppercase',
+    },
+    closeButton: {
+        padding: 5,
+    },
+    formScrollView: {
+        flex: 1,
+        padding: 20,
+    },
+    imagePreviewContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    imagePreview: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        borderWidth: 3,
+        borderColor: Colors.PRIMARY,
+    },
+    changeImageButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.PRIMARY,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginTop: 10,
+    },
+    changeImageText: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+        marginLeft: 5,
+    },
+    inputGroup: {
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+        color: Colors.TEXT_DARK,
+        marginBottom: 8,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 12,
+        fontSize: 14,
+        color: Colors.TEXT_DARK,
+        backgroundColor: '#FAFAFA',
+    },
+    inputError: {
+        borderColor: '#ff4444',
+        backgroundColor: '#fff5f5',
+    },
+    textArea: {
+        height: 100,
+        textAlignVertical: 'top',
+    },
+    categorySelector: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    categoryChip: {
+        backgroundColor: '#F0F0F0',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+    },
+    categoryChipSelected: {
+        backgroundColor: Colors.PRIMARY,
+        borderColor: Colors.PRIMARY,
+    },
+    categoryChipText: {
+        fontSize: 12,
+        color: Colors.TEXT_DARK,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+    },
+    categoryChipTextSelected: {
+        color: 'white',
+    },
+    errorText: {
+        color: '#ff4444',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 20,
+    },
+    cancelButton: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        paddingVertical: 15,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    cancelButtonText: {
+        color: '#666',
+        fontSize: 16,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+    },
+    saveButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.PRIMARY,
+        paddingVertical: 15,
+        borderRadius: 12,
+        gap: 8,
+    },
+    saveButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: Fonts.WEIGHT_BOLD,
+    },
+    
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        width: '90%',
+        padding: 20,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        color: Colors.TEXT_DARK,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    modalInput: {
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 12,
+        fontSize: 14,
+        color: Colors.TEXT_DARK,
+        backgroundColor: '#FAFAFA',
+        marginBottom: 20,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    modalCancelButton: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    modalCancelText: {
+        color: '#666',
+        fontSize: 14,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+    },
+    modalConfirmButton: {
+        flex: 1,
+        backgroundColor: Colors.PRIMARY,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    modalConfirmText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: Fonts.WEIGHT_BOLD,
     },
 });
 
