@@ -1,8 +1,8 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, Alert, StatusBar } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CommonActions } from '@react-navigation/native';
 import { TEXT_BG_TRANSPARENT, TEXT_DARK, PRIMARY } from '../../constants/Colors';
 import { useAdmin } from '../../context/AdminContext';
 
@@ -25,7 +25,11 @@ interface AdminLoginScreenProps {
 export default function AdminLoginScreen({ navigation }: AdminLoginScreenProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAdmin();
+    const { login, setNavigation } = useAdmin();
+
+    useEffect(() => {
+        setNavigation(navigation);
+    }, [navigation, setNavigation]);
 
     const handleLogin = async () => {
         if (email.trim() === '' || password.trim() === '') {
@@ -44,7 +48,12 @@ export default function AdminLoginScreen({ navigation }: AdminLoginScreenProps) 
     };
 
     const handleBack = () => {
-        navigation.goBack();
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'User' }],
+            })
+        );
     };
 
     return (
@@ -235,3 +244,4 @@ const styles = StyleSheet.create({
         letterSpacing: 0.3,
     },
 });
+

@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CommonActions } from '@react-navigation/native';
 
 interface AdminContextType {
     isLoggedIn: boolean;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     adminEmail: string;
+    setNavigation: (navigation: any) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -24,9 +27,9 @@ interface AdminProviderProps {
 export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [adminEmail, setAdminEmail] = useState('');
+    const [navigation, setNavigation] = useState<any>(null);
 
     const login = async (email: string, password: string): Promise<boolean> => {
-        // Simple admin authentication
         if (email === 'ADMIN' && password === 'admin123') {
             setIsLoggedIn(true);
             setAdminEmail(email);
@@ -35,10 +38,18 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         return false;
     };
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setIsLoggedIn(false);
         setAdminEmail('');
-    };
+        if (navigation) {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'User' }],
+                })
+            );
+        }
+    }, [navigation]);
 
     return (
         <AdminContext.Provider
@@ -47,9 +58,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
                 login,
                 logout,
                 adminEmail,
+                setNavigation,
             }}
         >
             {children}
         </AdminContext.Provider>
     );
 };
+

@@ -13,8 +13,7 @@ type RootStackParamList = {
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Menu'>;
 
 export default function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) { 
-    
-    // Fungsi untuk menangani penekanan tombol
+
     const handlePress = () => {
        
         navigation.navigate('Menu'); 
@@ -31,18 +30,15 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
 
             <View style={styles.overlay} /> 
 
-            {/* Konten Utama */}
             <View style={styles.contentContainer}>
-                
-                {/* Konten Teks */}
+
                 <View style={styles.textOverlay}>
                     <Text style={styles.yasakaText}>yasaka</Text>
                     <Text style={styles.friedChickenText}>fried chicken</Text>
                 </View>
 
                 <View style={{ flex: 1 }} /> 
-                
-                {/* Tombol PESAN SEKARANG */}
+
                 <TouchableOpacity 
                     style={styles.button}
                     onPress={handlePress}
@@ -56,7 +52,6 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     );
 }
 
-// --- Styling ---
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -71,8 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', 
     alignItems: 'center',
   },
-  
-  // Styling Teks
+
   textOverlay: {
     position: 'absolute', 
     top: '30%', 
@@ -83,7 +77,6 @@ const styles = StyleSheet.create({
     fontSize: 70, 
     color: TEXT_DARK, 
 
-    //efek latar belakang yasaka transparan
     backgroundColor: TEXT_BG_TRANSPARENT,
     paddingHorizontal: 15,
     paddingVertical: 5,
@@ -102,7 +95,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // Styling Tombol
   button: {
     flexDirection: 'row',
     alignItems: 'center',

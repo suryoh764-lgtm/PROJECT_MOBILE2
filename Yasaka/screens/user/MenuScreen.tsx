@@ -5,7 +5,6 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
 import { menuItems } from '../../constants/DummyData';

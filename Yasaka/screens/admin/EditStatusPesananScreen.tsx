@@ -20,14 +20,12 @@ const EditStatusPesananScreen = () => {
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [localOrders, setLocalOrders] = useState<Order[]>([]);
 
-    // Sync orders from OrderContext to local state when screen is focused
     useFocusEffect(
         useCallback(() => {
             setLocalOrders(orders);
         }, [orders])
     );
 
-    // Map OrderContext status to display format
     const getStatusDisplay = (status: string) => {
         switch (status) {
             case 'belum_diproses': return 'BELUM DIPROSES';
@@ -40,15 +38,14 @@ const EditStatusPesananScreen = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'belum_diproses': return '#9E9E9E';     // Grey
-            case 'sedang_diproses': return '#FFA500';    // Orange
-            case 'siap_diambil': return '#2196F3';       // Blue
-            case 'selesai': return '#4CAF50';            // Green
+            case 'belum_diproses': return '#9E9E9E';     
+            case 'sedang_diproses': return '#FFA500';   
+            case 'siap_diambil': return '#2196F3';       
+            case 'selesai': return '#4CAF50';            
             default: return '#9E9E9E';
         }
     };
 
-    // Get orders for context status key
     const getContextStatusKey = (tabKey: string) => {
         switch (tabKey) {
             case 'belum_diproses': return 'belum_diproses';
@@ -59,14 +56,12 @@ const EditStatusPesananScreen = () => {
         }
     };
 
-    // Filter orders based on active tab
     const filteredOrders = activeTab === 'all' 
         ? localOrders 
         : getContextStatusKey(activeTab) 
             ? localOrders.filter(order => order.status === getContextStatusKey(activeTab))
             : [];
 
-    // Categories with 4 statuses
     const categories = [
         { key: 'all', label: 'SEMUA', color: '#666' },
         { key: 'belum_diproses', label: 'BELUM DIPROSES', color: '#9E9E9E' },
@@ -97,7 +92,6 @@ const EditStatusPesananScreen = () => {
     };
 
     const handleViewDetails = (order: Order) => {
-        // Show order details in an alert
         const itemsList = order.items.map(item => `• ${item.name} x${item.quantity}`).join('\n');
         Alert.alert(
             `Pesanan #${order.id}`,

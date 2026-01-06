@@ -15,8 +15,6 @@ export default function StatusPesananScreen() {
   const { getOrdersByStatus } = useOrders();
   const [currentOrder, setCurrentOrder] = useState<Order | undefined>();
 
-  // Refresh order data when screen comes into focus
-  // Only show orders that are NOT completed (hide "selesai" orders from user)
   useFocusEffect(
     useCallback(() => {
       const belumDiprosesOrders = getOrdersByStatus('belum_diproses');
@@ -24,7 +22,6 @@ export default function StatusPesananScreen() {
       const siapDiambilOrders = getOrdersByStatus('siap_diambil');
       const allActiveOrders = [...belumDiprosesOrders, ...sedangDiprosesOrders, ...siapDiambilOrders];
       
-      // Get the most recent active order
       if (allActiveOrders.length > 0) {
         setCurrentOrder(allActiveOrders[0]);
       } else {
@@ -54,7 +51,6 @@ export default function StatusPesananScreen() {
   };
 
   const handleSelesai = () => {
-    // Navigate back when order is completed
     navigation.goBack();
   };
 

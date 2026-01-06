@@ -1,6 +1,3 @@
-
-
-
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Alert, Image, TextInput, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -522,7 +519,6 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     
-    // Form Styles
     formContainer: {
         flex: 1,
         marginTop: 90,
@@ -669,7 +665,6 @@ const styles = StyleSheet.create({
         fontWeight: Fonts.WEIGHT_BOLD,
     },
     
-    // Modal Styles
     modalOverlay: {
         flex: 1,
         justifyContent: 'center',
