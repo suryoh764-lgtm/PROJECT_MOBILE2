@@ -6,7 +6,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import AdminHeader from '../../components/AdminHeader';
-import { menuItems, MenuItem } from '../../constants/DummyData';
+import { MenuItem, useMenu } from '../../context/MenuContext';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 import { AdminStackParamList } from '../../navigation/AdminStack';
@@ -20,6 +20,7 @@ const EditMenuScreen: React.FC = () => {
     const navigation = useNavigation<EditMenuScreenNavigationProp>();
     const route = useRoute<EditMenuScreenRouteProp>();
     const { mode, menuId } = route.params;
+    const { menuItems, addMenu, updateMenu } = useMenu();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -29,12 +30,11 @@ const EditMenuScreen: React.FC = () => {
         category: 'PAKET'
     });
 
-    const [menuList, setMenuList] = useState<MenuItem[]>(menuItems);
     const [isImageModalVisible, setIsImageModalVisible] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState('');
 
     const isEditMode = mode === 'edit';
-    const currentMenu = isEditMode ? menuList.find(item => item.id === menuId) : null;
+    const currentMenu = isEditMode ? menuItems.find(item => item.id === menuId) : null;
 
     useEffect(() => {
         if (isEditMode && currentMenu) {
@@ -79,18 +79,16 @@ const EditMenuScreen: React.FC = () => {
         };
 
         if (isEditMode && currentMenu) {
-            setMenuList(prev => prev.map(item => 
-                item.id === menuId 
-                    ? { ...item, ...menuData }
-                    : item
-            ));
-            Alert.alert('Success', 'Menu berhasil diperbarui');
+            if (menuId) {
+                updateMenu(menuId, menuData);
+                Alert.alert('Success', 'Menu berhasil diperbarui');
+            }
         } else {
             const newItem: MenuItem = {
                 id: Date.now().toString(),
                 ...menuData
             };
-            setMenuList(prev => [...prev, newItem]);
+            addMenu(newItem);
             Alert.alert('Success', 'Menu berhasil ditambahkan');
         }
 
@@ -266,8 +264,7 @@ const EditMenuScreen: React.FC = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Pilih Sumber Gambar</Text>
-                        
-                        {/* Opsi Gallery */}
+
                         <TouchableOpacity 
                             style={styles.galleryOptionButton}
                             onPress={() => {
@@ -285,7 +282,6 @@ const EditMenuScreen: React.FC = () => {
                             <View style={styles.dividerLine} />
                         </View>
 
-                        {/* Input URL */}
                         <Text style={styles.urlLabel}>Masukkan URL Gambar:</Text>
                         <TextInput
                             style={styles.modalInput}

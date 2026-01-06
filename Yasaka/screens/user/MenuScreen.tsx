@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Header from '../../components/Header';
 import MenuCard from '../../components/MenuCard';
-import { menuItems } from '../../constants/DummyData';
+import { useMenu } from '../../context/MenuContext';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 import { RootStackParamList } from '../../navigation/UserStack';
@@ -19,6 +19,7 @@ const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
 const MenuScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { menuItems } = useMenu();
     const { cartItems, addToCart, removeFromCart, updateQuantity, getTotalItems } = useCart();
     const [selectedTableNumber, setSelectedTableNumber] = useState('1');
     const [selectedCategory, setSelectedCategory] = useState('PAKET');

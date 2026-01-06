@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import AdminHeader from '../../components/AdminHeader';
-import { menuItems, MenuItem } from '../../constants/DummyData';
+import { MenuItem, useMenu } from '../../context/MenuContext';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 
@@ -26,8 +26,8 @@ interface MenuFormData {
 }
 
 const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) => {
+    const { menuItems, addMenu, deleteMenu } = useMenu();
     const [selectedCategory, setSelectedCategory] = useState('PAKET');
-    const [menuList, setMenuList] = useState<MenuItem[]>(menuItems);
     const [showForm, setShowForm] = useState(false);
     const [isImageModalVisible, setIsImageModalVisible] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState('');
@@ -123,7 +123,7 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
                 : require('../../assets/images/Bubble.png')
         };
 
-        setMenuList(prev => [newMenuItem, ...prev]);
+        addMenu(newMenuItem);
         Alert.alert('Sukses', 'Menu berhasil ditambahkan!');
         setShowForm(false);
         resetForm();
@@ -151,7 +151,7 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
                     text: 'Hapus', 
                     style: 'destructive',
                     onPress: () => {
-                        setMenuList(prev => prev.filter(menuItem => menuItem.id !== item.id));
+                        deleteMenu(item.id);
                         Alert.alert('Success', 'Menu berhasil dihapus');
                     }
                 }
@@ -159,7 +159,7 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
         );
     };
 
-    const filteredMenu = menuList.filter(item => item.category === selectedCategory);
+    const filteredMenu = menuItems.filter(item => item.category === selectedCategory);
 
     const renderImagePreview = () => {
         const imageSource = formData.imageUrl.trim() 
