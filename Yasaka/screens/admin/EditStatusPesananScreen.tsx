@@ -1,71 +1,109 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { useFocusEffect } from '@react-navigation/native';
 import AdminHeader from '../../components/AdminHeader';
+import { useOrders, Order } from '../../context/OrderContext';
+import { formatCurrency } from '../../utils/formatCurrency';
 import * as Colors from '../../constants/Colors';
 import * as Fonts from '../../constants/Fonts';
 
 const EditStatusPesananScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
+    const { orders, updateOrderStatus } = useOrders();
     const [activeTab, setActiveTab] = useState('all');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [localOrders, setLocalOrders] = useState<Order[]>([]);
 
-    const [orders, setOrders] = useState([
-        { id: '1', noMeja: '01', status: 'belum_diproses', total: 50000 },
-        { id: '2', noMeja: '05', status: 'di_proses', total: 75000 },
-        { id: '3', noMeja: '03', status: 'selesai', total: 60000 },
-        { id: '4', noMeja: '02', status: 'belum_diproses', total: 45000 },
-        { id: '5', noMeja: '07', status: 'di_proses', total: 85000 },
-    ]);
+    // Sync orders from OrderContext to local state when screen is focused
+    useFocusEffect(
+        useCallback(() => {
+            setLocalOrders(orders);
+        }, [orders])
+    );
 
-    const categories = [
-        { key: 'all', label: 'SEMUA', color: '#666' },
-        { key: 'belum_diproses', label: 'BELUM DI PROSES', color: '#FFA500' },
-        { key: 'di_proses', label: 'DI PROSES', color: '#2196F3' },
-        { key: 'selesai', label: 'SELESAI', color: '#4CAF50' },
-    ];
-
-    const filteredOrders = activeTab === 'all' 
-        ? orders 
-        : orders.filter(order => order.status === activeTab);
-
-    const handleStatusSelect = (newStatus: string) => {
-        if (selectedOrderId) {
-            const updatedOrders = orders.map(order => 
-                order.id === selectedOrderId 
-                    ? { ...order, status: newStatus }
-                    : order
-            );
-            setOrders(updatedOrders);
-            setActiveTab(newStatus);
-            setIsStatusModalVisible(false);
-            setSelectedOrderId(null);
-            Alert.alert('Success', `Status pesanan berhasil diperbarui menjadi ${newStatus}`);
+    // Map OrderContext status to display format
+    const getStatusDisplay = (status: string) => {
+        switch (status) {
+            case 'belum_diproses': return 'BELUM DIPROSES';
+            case 'sedang_diproses': return 'SEDANG DIPROSES';
+            case 'siap_diambil': return 'SIAP DIAMBIL';
+            case 'selesai': return 'SELESAI';
+            default: return 'TIDAK DIKETAHUI';
         }
     };
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'belum_diproses': return '#FFA500';
-            case 'di_proses': return '#2196F3';
-            case 'selesai': return '#4CAF50';
-            default: return '#FFA500';
+            case 'belum_diproses': return '#9E9E9E';     // Grey
+            case 'sedang_diproses': return '#FFA500';    // Orange
+            case 'siap_diambil': return '#2196F3';       // Blue
+            case 'selesai': return '#4CAF50';            // Green
+            default: return '#9E9E9E';
         }
     };
 
-    const getStatusText = (status: string) => {
-        switch (status) {
-            case 'belum_diproses': return 'BELUM DI PROSES';
-            case 'di_proses': return 'DI PROSES';
-            case 'selesai': return 'SELESAI';
-            default: return 'BELUM DI PROSES';
+    // Get orders for context status key
+    const getContextStatusKey = (tabKey: string) => {
+        switch (tabKey) {
+            case 'belum_diproses': return 'belum_diproses';
+            case 'sedang_diproses': return 'sedang_diproses';
+            case 'siap_diambil': return 'siap_diambil';
+            case 'selesai': return 'selesai';
+            default: return null;
         }
+    };
+
+    // Filter orders based on active tab
+    const filteredOrders = activeTab === 'all' 
+        ? localOrders 
+        : getContextStatusKey(activeTab) 
+            ? localOrders.filter(order => order.status === getContextStatusKey(activeTab))
+            : [];
+
+    // Categories with 4 statuses
+    const categories = [
+        { key: 'all', label: 'SEMUA', color: '#666' },
+        { key: 'belum_diproses', label: 'BELUM DIPROSES', color: '#9E9E9E' },
+        { key: 'sedang_diproses', label: 'SEDANG DIPROSES', color: '#FFA500' },
+        { key: 'siap_diambil', label: 'SIAP DIAMBIL', color: '#2196F3' },
+        { key: 'selesai', label: 'SELESAI', color: '#4CAF50' },
+    ];
+
+    const handleStatusSelect = (newStatusKey: string) => {
+        if (selectedOrderId) {
+            const contextStatus = getContextStatusKey(newStatusKey);
+            if (contextStatus) {
+                updateOrderStatus(selectedOrderId, contextStatus as Order['status']);
+                setIsStatusModalVisible(false);
+                setSelectedOrderId(null);
+                Alert.alert('Sukses', 'Status pesanan berhasil diperbarui!');
+            }
+        }
+    };
+
+    const handleQuickAction = (order: Order, action: 'mulai' | 'siap' | 'selesai') => {
+        const statusMap = {
+            'mulai': 'sedang_diproses' as const,
+            'siap': 'siap_diambil' as const,
+            'selesai': 'selesai' as const
+        };
+        updateOrderStatus(order.id, statusMap[action]);
+    };
+
+    const handleViewDetails = (order: Order) => {
+        // Show order details in an alert
+        const itemsList = order.items.map(item => `• ${item.name} x${item.quantity}`).join('\n');
+        Alert.alert(
+            `Pesanan #${order.id}`,
+            `Meja: ${order.tableNumber}\n\nItem:\n${itemsList}\n\nTotal: ${formatCurrency(order.totalPrice)}\nCatatan: ${order.notes || '-'}\nWaktu: ${order.orderTime}\nStatus: ${getStatusDisplay(order.status)}`,
+            [{ text: 'Tutup' }]
+        );
     };
 
     return (
@@ -82,10 +120,16 @@ const EditStatusPesananScreen = () => {
                 />
 
                 <AdminHeader 
-                    title="EDIT STATUS PESANAN" 
+                    title="PESANAN MASUK" 
                     navigation={navigation}
                     onBackPress={() => navigation.goBack()} 
                 />
+
+                <View style={styles.orderCountContainer}>
+                    <Text style={styles.orderCountText}>
+                        Total Pesanan: {localOrders.length}
+                    </Text>
+                </View>
 
                 <View style={styles.dropdownContainer}>
                     <TouchableOpacity 
@@ -102,70 +146,108 @@ const EditStatusPesananScreen = () => {
                 </View>
 
                 <ScrollView style={styles.orderContainer} showsVerticalScrollIndicator={false}>
-                    {filteredOrders.map(order => (
-                        <View key={order.id} style={styles.orderCard}>
-
-                            <View style={styles.orderInfo}>
-                                <Text style={styles.customerName}>Meja {order.noMeja}</Text>
-                                <Text style={styles.orderId}>Pesanan #{order.id}</Text>
-                                <Text style={styles.orderTotal}>Rp {order.total.toLocaleString()}</Text>
-                            </View>
-                            
-
-                            <View style={styles.statusContainer}>
-                                <TouchableOpacity 
-                                    style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}
-                                    onPress={() => {
-                                        setSelectedOrderId(order.id);
-                                        setIsStatusModalVisible(true);
-                                    }}
-                                >
-                                    <Text style={styles.statusText}>{getStatusText(order.status)}</Text>
-                                    <Ionicons name="chevron-down" size={12} color="white" style={styles.statusDropdownIcon} />
-                                </TouchableOpacity>
+                    {filteredOrders.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="receipt-outline" size={60} color="rgba(255,255,255,0.5)" />
+                            <Text style={styles.emptyText}>Tidak ada pesanan</Text>
+                            <Text style={styles.emptySubtext}>Pesanan akan muncul di sini</Text>
+                        </View>
+                    ) : (
+                        filteredOrders.map(order => (
+                            <View key={order.id} style={styles.orderCard}>
+                                <View style={styles.orderHeader}>
+                                    <View style={styles.orderInfo}>
+                                        <Text style={styles.orderId}>Pesanan #{order.id}</Text>
+                                        <Text style={styles.customerName}>Meja {order.tableNumber}</Text>
+                                    </View>
+                                    <View style={styles.timeContainer}>
+                                        <Ionicons name="time-outline" size={14} color="#666" />
+                                        <Text style={styles.orderTime}>{order.orderTime}</Text>
+                                    </View>
+                                </View>
                                 
-
-                                <View style={styles.actionButtons}>
-                                    {order.status === 'belum_diproses' && (
-                                        <TouchableOpacity 
-                                            style={[styles.actionButton, styles.preparingButton]}
-                                            onPress={() => {
-                                                const updatedOrders = orders.map(o => 
-                                                    o.id === order.id 
-                                                        ? { ...o, status: 'di_proses' }
-                                                        : o
-                                                );
-                                                setOrders(updatedOrders);
-                                                setActiveTab('di_proses');
-                                            }}
-                                        >
-                                            <Ionicons name="time-outline" size={16} color="white" />
-                                            <Text style={styles.actionButtonText}>Mulai Proses</Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    
-                                    {order.status === 'di_proses' && (
-                                        <TouchableOpacity 
-                                            style={[styles.actionButton, styles.readyButton]}
-                                            onPress={() => {
-                                                const updatedOrders = orders.map(o => 
-                                                    o.id === order.id 
-                                                        ? { ...o, status: 'selesai' }
-                                                        : o
-                                                );
-                                                setOrders(updatedOrders);
-                                                setActiveTab('selesai');
-                                            }}
-                                        >
-                                            <Ionicons name="checkmark-circle-outline" size={16} color="white" />
-                                            <Text style={styles.actionButtonText}>Selesai</Text>
-                                        </TouchableOpacity>
+                                <View style={styles.orderItems}>
+                                    <Text style={styles.itemsTitle}>Item Pesanan:</Text>
+                                    {order.items.slice(0, 3).map((item, index) => (
+                                        <Text key={index} style={styles.itemText}>
+                                            • {item.name} x{item.quantity}
+                                        </Text>
+                                    ))}
+                                    {order.items.length > 3 && (
+                                        <Text style={styles.moreItems}>
+                                            +{order.items.length - 3} item lainnya
+                                        </Text>
                                     )}
                                 </View>
-                            </View>
-                        </View>
-                    ))}
 
+                                <View style={styles.orderFooter}>
+                                    <Text style={styles.orderTotal}>
+                                        Total: {formatCurrency(order.totalPrice)}
+                                    </Text>
+                                </View>
+
+                                {order.notes && (
+                                    <View style={styles.notesContainer}>
+                                        <Ionicons name="create-outline" size={14} color="#FFA500" />
+                                        <Text style={styles.notesText}>{order.notes}</Text>
+                                    </View>
+                                )}
+                                
+                                <View style={styles.statusContainer}>
+                                    <TouchableOpacity 
+                                        style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}
+                                        onPress={() => {
+                                            setSelectedOrderId(order.id);
+                                            setIsStatusModalVisible(true);
+                                        }}
+                                    >
+                                        <Text style={styles.statusText}>{getStatusDisplay(order.status)}</Text>
+                                        <Ionicons name="chevron-down" size={12} color="white" style={styles.statusDropdownIcon} />
+                                    </TouchableOpacity>
+
+                                    <View style={styles.actionButtons}>
+                                        {order.status === 'belum_diproses' && (
+                                            <TouchableOpacity 
+                                                style={[styles.actionButton, styles.preparingButton]}
+                                                onPress={() => handleQuickAction(order, 'mulai')}
+                                            >
+                                                <Ionicons name="play-outline" size={16} color="white" />
+                                                <Text style={styles.actionButtonText}>Mulai</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                        
+                                        {order.status === 'sedang_diproses' && (
+                                            <TouchableOpacity 
+                                                style={[styles.actionButton, styles.readyButton]}
+                                                onPress={() => handleQuickAction(order, 'siap')}
+                                            >
+                                                <Ionicons name="time-outline" size={16} color="white" />
+                                                <Text style={styles.actionButtonText}>Siap</Text>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        {order.status === 'siap_diambil' && (
+                                            <TouchableOpacity 
+                                                style={[styles.actionButton, styles.completeButton]}
+                                                onPress={() => handleQuickAction(order, 'selesai')}
+                                            >
+                                                <Ionicons name="checkmark-circle-outline" size={16} color="white" />
+                                                <Text style={styles.actionButtonText}>Selesai</Text>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        <TouchableOpacity 
+                                            style={[styles.actionButton, styles.detailButton]}
+                                            onPress={() => handleViewDetails(order)}
+                                        >
+                                            <Ionicons name="eye-outline" size={16} color="white" />
+                                            <Text style={styles.actionButtonText}>Detail</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        ))
+                    )}
                 </ScrollView>
 
             </ImageBackground>
@@ -192,12 +274,15 @@ const EditStatusPesananScreen = () => {
                                         setIsModalVisible(false);
                                     }}
                                 >
-                                    <Text style={[
-                                        styles.categoryItemText,
-                                        activeTab === category.key && styles.categoryItemTextSelected
-                                    ]}>
-                                        {category.label}
-                                    </Text>
+                                    <View style={styles.categoryItemContent}>
+                                        <View style={[styles.categoryColorDot, { backgroundColor: category.color }]} />
+                                        <Text style={[
+                                            styles.categoryItemText,
+                                            activeTab === category.key && styles.categoryItemTextSelected
+                                        ]}>
+                                            {category.label}
+                                        </Text>
+                                    </View>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -220,14 +305,14 @@ const EditStatusPesananScreen = () => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Pilih Status Pesanan</Text>
+                        <Text style={styles.modalTitle}>Ubah Status Pesanan</Text>
                         <View style={styles.statusList}>
                             {categories.slice(1).map(category => (
                                 <TouchableOpacity
                                     key={category.key}
                                     style={[
                                         styles.statusItem,
-                                        { backgroundColor: category.color || '#FFA500' }
+                                        { backgroundColor: category.color || '#9E9E9E' }
                                     ]}
                                     onPress={() => handleStatusSelect(category.key)}
                                 >
@@ -256,15 +341,42 @@ const styles = StyleSheet.create({
     background: {
         flex: 1
     },
-
+    orderCountContainer: {
+        paddingHorizontal: 20,
+        paddingTop: 10,
+    },
+    orderCountText: {
+        fontSize: 14,
+        color: Colors.TEXT_LIGHT,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+    },
     orderContainer: {
         flex: 1,
-        marginTop: 20,
+        marginTop: 10,
         paddingHorizontal: 20,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    emptyText: {
+        fontSize: 18,
+        color: Colors.TEXT_LIGHT,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        marginTop: 15,
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: Colors.TEXT_LIGHT,
+        opacity: 0.7,
+        marginTop: 5,
     },
     dropdownContainer: {
         marginHorizontal: 20,
-        marginTop: 20,
+        marginTop: 10,
+        marginBottom: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -306,7 +418,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         width: '80%',
         alignItems: 'center',
-        maxHeight: '60%',
+        maxHeight: '70%',
     },
     modalTitle: {
         fontSize: 18,
@@ -322,7 +434,16 @@ const styles = StyleSheet.create({
         padding: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
+    },
+    categoryItemContent: {
+        flexDirection: 'row',
         alignItems: 'center',
+    },
+    categoryColorDot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 10,
     },
     categoryItemSelected: {
         backgroundColor: 'rgba(245, 111, 21, 0.1)',
@@ -378,29 +499,89 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    orderInfo: {
-        marginBottom: 12,
+    orderHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 10,
+        paddingBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
     },
-    customerName: {
-        fontSize: 16,
-        fontWeight: Fonts.WEIGHT_BOLD,
-        color: Colors.TEXT_DARK,
-        marginBottom: 4,
+    orderInfo: {
+        flex: 1,
     },
     orderId: {
         fontSize: 12,
         color: '#666',
         marginBottom: 2,
     },
-    orderTotal: {
+    customerName: {
+        fontSize: 16,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        color: Colors.TEXT_DARK,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    orderTime: {
+        fontSize: 12,
+        color: '#666',
+        marginLeft: 4,
+    },
+    orderItems: {
+        marginBottom: 10,
+    },
+    itemsTitle: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 4,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+    },
+    itemText: {
         fontSize: 14,
+        color: Colors.TEXT_DARK,
+        marginLeft: 8,
+    },
+    moreItems: {
+        fontSize: 12,
+        color: Colors.PRIMARY,
+        marginLeft: 8,
+        marginTop: 4,
+        fontStyle: 'italic',
+    },
+    orderFooter: {
+        marginBottom: 10,
+    },
+    orderTotal: {
+        fontSize: 16,
         fontWeight: Fonts.WEIGHT_BOLD,
         color: Colors.PRIMARY,
+    },
+    notesContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: 'rgba(255, 165, 0, 0.1)',
+        padding: 8,
+        borderRadius: 8,
+        marginBottom: 10,
+    },
+    notesText: {
+        fontSize: 12,
+        color: '#666',
+        marginLeft: 6,
+        flex: 1,
+        fontStyle: 'italic',
     },
     statusContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#E0E0E0',
     },
     statusBadge: {
         flexDirection: 'row',
@@ -431,10 +612,16 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     preparingButton: {
-        backgroundColor: '#2196F3',
+        backgroundColor: '#FFA500', // Orange for sedang_diproses
     },
     readyButton: {
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#2196F3', // Blue for siap_diambil
+    },
+    completeButton: {
+        backgroundColor: '#4CAF50', // Green for selesai
+    },
+    detailButton: {
+        backgroundColor: '#666',
     },
     actionButtonText: {
         color: 'white',

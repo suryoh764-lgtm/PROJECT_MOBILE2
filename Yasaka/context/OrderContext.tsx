@@ -9,7 +9,7 @@ export interface Order {
   tableNumber: string;
   notes: string;
   orderTime: string;
-  status: 'sedang_diproses' | 'siap_diambil' | 'selesai';
+  status: 'belum_diproses' | 'sedang_diproses' | 'siap_diambil' | 'selesai';
 }
 
 interface OrderContextType {
@@ -17,6 +17,8 @@ interface OrderContextType {
   addOrder: (order: Omit<Order, 'id' | 'orderTime' | 'status'>) => void;
   getCurrentOrder: () => Order | undefined;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  getOrdersByStatus: (status: Order['status']) => Order[];
+  getAllOrders: () => Order[];
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -41,7 +43,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
       ...orderData,
       id: Date.now().toString(),
       orderTime: new Date().toLocaleString('id-ID'),
-      status: 'sedang_diproses'
+      status: 'belum_diproses'
     };
     setOrders(prevOrders => [newOrder, ...prevOrders]);
   };
@@ -58,6 +60,14 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     );
   };
 
+  const getOrdersByStatus = (status: Order['status']) => {
+    return orders.filter(order => order.status === status);
+  };
+
+  const getAllOrders = () => {
+    return orders;
+  };
+
   return (
     <OrderContext.Provider
       value={{
@@ -65,6 +75,8 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         addOrder,
         getCurrentOrder,
         updateOrderStatus,
+        getOrdersByStatus,
+        getAllOrders,
       }}
     >
       {children}
