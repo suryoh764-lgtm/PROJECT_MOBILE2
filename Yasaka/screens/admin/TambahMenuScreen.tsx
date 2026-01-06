@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import * as ImagePicker from 'expo-image-picker';
 import AdminHeader from '../../components/AdminHeader';
 import { menuItems, MenuItem } from '../../constants/DummyData';
 import * as Colors from '../../constants/Colors';
@@ -75,6 +75,35 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const pickImageFromGallery = async () => {
+        try {
+            const { status: permissionStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            
+            if (permissionStatus !== 'granted') {
+                Alert.alert(
+                    'Izin Diperlukan', 
+                    'Izin akses galeri diperlukan untuk memilih gambar. Silakan berikan izin di pengaturan aplikasi.'
+                );
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                const selectedImage = result.assets[0];
+                setTempImageUrl(selectedImage.uri);
+                setFormData(prev => ({ ...prev, imageUrl: selectedImage.uri }));
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Gagal memilih gambar. Silakan coba lagi.');
+        }
     };
 
     const handleSaveMenu = () => {
@@ -277,12 +306,33 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
                     visible={isImageModalVisible}
                     transparent={true}
                     animationType="slide"
-                    onRequestClose={() => setIsImageModalVisible(false)}
+                    onRequestClose={() => {
+                        setIsImageModalVisible(false);
+                        setTempImageUrl('');
+                    }}
                 >
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Masukkan URL Gambar</Text>
+                            <Text style={styles.modalTitle}>Pilih Sumber Gambar</Text>
                             
+                            <TouchableOpacity 
+                                style={styles.galleryOptionButton}
+                                onPress={() => {
+                                    setIsImageModalVisible(false);
+                                    pickImageFromGallery();
+                                }}
+                            >
+                                <Ionicons name="images" size={24} color={Colors.PRIMARY} />
+                                <Text style={styles.galleryOptionText}>Pilih dari Galeri</Text>
+                            </TouchableOpacity>
+
+                            <View style={styles.divider}>
+                                <View style={styles.dividerLine} />
+                                <Text style={styles.dividerText}>atau</Text>
+                                <View style={styles.dividerLine} />
+                            </View>
+
+                            <Text style={styles.urlLabel}>Masukkan URL Gambar:</Text>
                             <TextInput
                                 style={styles.modalInput}
                                 placeholder="https://example.com/image.jpg"
@@ -304,7 +354,13 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={styles.modalConfirmButton}
-                                    onPress={handleImageSelect}
+                                    onPress={() => {
+                                        if (tempImageUrl.trim()) {
+                                            setFormData(prev => ({ ...prev, imageUrl: tempImageUrl.trim() }));
+                                        }
+                                        setIsImageModalVisible(false);
+                                        setTempImageUrl('');
+                                    }}
                                 >
                                     <Text style={styles.modalConfirmText}>Pilih</Text>
                                 </TouchableOpacity>
@@ -328,7 +384,6 @@ const TambahMenuScreen = ({ navigation, onMenuPress }: TambahMenuScreenProps) =>
                     tint="dark"
                     style={StyleSheet.absoluteFill}
                 />
-
 
                 <AdminHeader 
                     title="MANAJEMEN MENU" 
@@ -722,6 +777,45 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 14,
         fontWeight: Fonts.WEIGHT_BOLD,
+    },
+    galleryOptionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F0F8FF',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: Colors.PRIMARY,
+        borderStyle: 'dashed',
+    },
+    galleryOptionText: {
+        fontSize: 16,
+        fontWeight: Fonts.WEIGHT_BOLD,
+        color: Colors.PRIMARY,
+        marginLeft: 10,
+    },
+    divider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 15,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#E0E0E0',
+    },
+    dividerText: {
+        marginHorizontal: 15,
+        color: '#999',
+        fontSize: 12,
+    },
+    urlLabel: {
+        fontSize: 14,
+        fontWeight: Fonts.WEIGHT_MEDIUM,
+        color: Colors.TEXT_DARK,
+        marginBottom: 8,
     },
 });
 
