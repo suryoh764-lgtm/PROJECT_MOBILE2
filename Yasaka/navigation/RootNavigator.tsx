@@ -12,10 +12,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
   return (
-
     <NavigationContainer>
-
-
       <Stack.Navigator
         screenOptions={{ 
           headerShown: false,
@@ -28,8 +25,6 @@ export default function RootNavigator() {
   );
 }
 
-
-// Function untuk switch ke user mode  
 export const switchToUserMode = (navigation: any) => {
   navigation.reset({
     index: 0,

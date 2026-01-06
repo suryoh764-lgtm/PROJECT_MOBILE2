@@ -3,12 +3,11 @@ export interface MenuItem {
     name: string;
     price: number;
     category: string;
-    image: any; // For require() images
+    image: any;
     description?: string;
 }
 
 export const menuItems: MenuItem[] = [
-    // PAKET
     {
         id: '1',
         name: 'Paket Ayam Geprek',
@@ -25,7 +24,6 @@ export const menuItems: MenuItem[] = [
         image: require('../assets/images/Bubble.png'),
         description: 'Nasi box praktis dengan ayam goreng, telur, sayuran, dan sambal. Ideal untuk makan cepat saji.'
     },
-    // AYAM
     {
         id: '3',
         name: 'Ayam Goreng',
@@ -42,7 +40,6 @@ export const menuItems: MenuItem[] = [
         image: require('../assets/images/Bubble.png'),
         description: 'Ayam bakar dengan bumbu kecap manis dan rempah. Aromanya harum, rasanya manis gurih.'
     },
-    // MINUMAN
     {
         id: '5',
         name: 'Es Teh',
@@ -59,7 +56,6 @@ export const menuItems: MenuItem[] = [
         image: require('../assets/images/Bubble.png'),
         description: 'Jus jeruk segar dari jeruk pilihan, kaya vitamin C dan rasa asam manis yang menyegarkan.'
     },
-    // KENTANG
     {
         id: '7',
         name: 'Kentang Goreng',
@@ -77,3 +73,4 @@ export const menuItems: MenuItem[] = [
         description: 'Kentang bakar dengan keju melted di atasnya. Gurih, creamy, dan sangat menggugah selera.'
     },
 ];
+

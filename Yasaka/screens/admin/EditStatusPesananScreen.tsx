@@ -606,13 +606,13 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     preparingButton: {
-        backgroundColor: '#FFA500', // Orange for sedang_diproses
+        backgroundColor: '#FFA500',
     },
     readyButton: {
-        backgroundColor: '#2196F3', // Blue for siap_diambil
+        backgroundColor: '#2196F3',
     },
     completeButton: {
-        backgroundColor: '#4CAF50', // Green for selesai
+        backgroundColor: '#4CAF50',
     },
     detailButton: {
         backgroundColor: '#666',

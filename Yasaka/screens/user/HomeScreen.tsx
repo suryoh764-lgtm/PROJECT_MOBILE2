@@ -15,9 +15,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'M
 export default function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) { 
 
     const handlePress = () => {
-       
         navigation.navigate('Menu'); 
-        console.log("Navigating to Menu Screen...");
     };
 
     return (
