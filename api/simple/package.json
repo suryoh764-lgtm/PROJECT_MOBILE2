@@ -1,0 +1,24 @@
+{
+  "name": "yasaka-simple-api",
+  "version": "1.0.0",
+  "description": "Simplified Yasaka Restaurant API",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:seed": "node seed.js",
+    "setup": "npm install && prisma generate && prisma db push && prisma seed"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  }
+}
+
